@@ -138,6 +138,18 @@
             </div>
         </section>
 
+        <!-- SECCIÓN DE PUBLICIDAD / BANNER SEPARADOR -->
+        <div class="my-12 flex flex-col items-center justify-center w-full">
+            <span class="text-[10px] text-slate-400 uppercase tracking-widest mb-2 font-medium">Publicidad</span>
+            <a href="#" class="block w-full max-w-5xl rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-slate-200 bg-slate-900">
+                <img 
+                    src="https://static.wixstatic.com/media/9dbdc2_3a4483a3e19a415285aa91477bf99087~mv2.gif" 
+                    alt="Banner Publicitario" 
+                    class="w-full h-auto object-cover max-h-32 opacity-90 hover:opacity-100 transition-opacity"
+                >
+            </a>
+        </div>
+
         <!-- SECCIÓN: Medios en Inglés -->
         <section id="ingles" class="mb-10 scroll-mt-24">
             <div class="flex items-center mb-6">
@@ -189,6 +201,67 @@
                 </a>
             </div>
         </section>
+
+        <!-- NUEVA SECCIÓN: Feed Estilo Discover / MSN -->
+        <section id="noticias-visuales" class="mb-16 pt-12 border-t border-slate-200 scroll-mt-24">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mb-3">Portada Visual en Vivo</h2>
+                <p class="text-lg text-slate-500 max-w-2xl mx-auto">Las últimas 10 noticias en Español y en Inglés, presentadas en un formato interactivo.</p>
+            </div>
+
+            <!-- Feed Español con imágenes -->
+            <div class="mb-12">
+                <div class="flex items-center mb-6">
+                    <span class="bg-blue-100 text-blue-700 p-2 rounded-lg mr-3">
+                        <i class="ph ph-newspaper text-2xl"></i>
+                    </span>
+                    <h3 class="text-2xl font-bold text-slate-800">Lo Último en Español</h3>
+                </div>
+                <div id="grid-noticias-es" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                    <!-- Animación de Carga -->
+                    <div class="col-span-full py-12 flex justify-center items-center text-slate-500 font-medium">
+                        <svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Cargando titulares visuales...
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN DE PUBLICIDAD / BANNER SEPARADOR EN LA PORTADA VISUAL -->
+            <div class="my-12 flex flex-col items-center justify-center w-full">
+                <span class="text-[10px] text-slate-400 uppercase tracking-widest mb-2 font-medium">Publicidad</span>
+                <a href="#" class="block w-full max-w-5xl rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-slate-200 bg-slate-900">
+                    <img 
+                        src="https://static.wixstatic.com/media/9dbdc2_3a4483a3e19a415285aa91477bf99087~mv2.gif" 
+                        alt="Banner Publicitario" 
+                        class="w-full h-auto object-cover max-h-32 opacity-90 hover:opacity-100 transition-opacity"
+                    >
+                </a>
+            </div>
+
+            <!-- Feed Inglés con imágenes -->
+            <div>
+                <div class="flex items-center mb-6">
+                    <span class="bg-indigo-100 text-indigo-700 p-2 rounded-lg mr-3">
+                        <i class="ph ph-newspaper-clipping text-2xl"></i>
+                    </span>
+                    <h3 class="text-2xl font-bold text-slate-800">Latest in English</h3>
+                </div>
+                <div id="grid-noticias-en" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                    <!-- Animación de Carga -->
+                    <div class="col-span-full py-12 flex justify-center items-center text-slate-500 font-medium">
+                        <svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Loading visual headlines...
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <!-- Pie de página simple -->
@@ -231,6 +304,62 @@
                     console.error('Error al obtener noticias:', error);
                     tickerContainer.innerHTML = '<span class="px-4 text-red-400">Error de conexión al obtener noticias.</span>';
                 });
+
+            // NUEVO: Función para cargar noticias con imágenes (estilo Discover/MSN)
+            const cargarNoticiasGrid = (rssUrl, containerId, accentColor) => {
+                const apiGridUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+                
+                fetch(apiGridUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        const container = document.getElementById(containerId);
+                        if (data.status === 'ok') {
+                            let html = '';
+                            // Mostrar exactamente 10 noticias
+                            data.items.slice(0, 10).forEach(item => {
+                                // Buscamos la imagen de la noticia. Si no hay, ponemos una de stock relacionada a prensa.
+                                let imageUrl = item.thumbnail || (item.enclosure && item.enclosure.link) || 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&q=80&w=500';
+                                
+                                // Limpiamos la descripción de posibles etiquetas HTML raras
+                                let cleanDesc = item.description ? item.description.replace(/<[^>]+>/g, '') : '';
+                                
+                                html += `
+                                    <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="flex flex-col bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl border border-slate-100 transition-all duration-300 group hover:-translate-y-1">
+                                        <div class="relative h-40 overflow-hidden bg-slate-200">
+                                            <img src="${imageUrl}" alt="Imagen de noticia" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&q=80&w=500'">
+                                        </div>
+                                        <div class="p-4 flex-grow flex flex-col justify-between">
+                                            <div>
+                                                <h4 class="font-bold text-sm text-slate-900 leading-tight mb-2 group-hover:text-${accentColor}-600 transition-colors line-clamp-3">${item.title}</h4>
+                                                <p class="text-xs text-slate-500 line-clamp-2">${cleanDesc}</p>
+                                            </div>
+                                            <div class="mt-3 flex justify-between items-center text-[10px] text-slate-400 font-medium uppercase tracking-wider">
+                                                <span class="truncate pr-2">${data.feed.title || 'Prensa Global'}</span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                `;
+                            });
+                            container.innerHTML = html;
+                        } else {
+                            container.innerHTML = `<div class="col-span-full py-8 text-center text-red-500">No se pudieron cargar las noticias para este panel.</div>`;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error cargando grid:', error);
+                        document.getElementById(containerId).innerHTML = `<div class="col-span-full py-8 text-center text-red-500">Error de conexión al cargar el feed.</div>`;
+                    });
+            };
+
+            // Ejecutamos las llamadas con un pequeño retraso para no saturar la API gratuita
+            setTimeout(() => {
+                cargarNoticiasGrid('https://e00-elmundo.uecdn.es/elmundo/rss/portada.xml', 'grid-noticias-es', 'blue');
+            }, 600);
+
+            setTimeout(() => {
+                cargarNoticiasGrid('http://feeds.bbci.co.uk/news/world/rss.xml', 'grid-noticias-en', 'indigo');
+            }, 1200);
+
         });
     </script>
 
