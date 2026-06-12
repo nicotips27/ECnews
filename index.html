@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Directorio Global de Prensa</title>
+    <!-- Cargamos Tailwind CSS para los estilos modernos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Cargamos Phosphor Icons para algunos íconos decorativos -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <style>
+        /* Pequeño ajuste para suavizar los enlaces */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Animación del Teleprompter / Ticker */
+        .ticker-wrap {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            white-space: nowrap;
+        }
+        .ticker-content {
+            display: inline-block;
+            padding-left: 100%;
+            animation: ticker 40s linear infinite;
+        }
+        /* Pausar la animación cuando el usuario pasa el ratón por encima */
+        .ticker-content:hover {
+            animation-play-state: paused;
+        }
+        @keyframes ticker {
+            0%   { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <!-- Encabezado con el Logotipo -->
+    <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            
+            <!-- Logotipo clickeable (abre en la misma ventana como solicitaste) -->
+            <a href="https://nicotips27.github.io/Estalingrado-corp-Buscador-/" class="group flex items-center transition-transform hover:scale-105 duration-300">
+                <img 
+                    src="https://64.media.tumblr.com/527332b08521675a2cf2ee6f30c96a68/c124e1e4e331179f-ec/s500x750/ac10b6fb2ded5c5b8d16c32099bb49e2904104fa.jpg" 
+                    alt="Logo Estalingrado Corp" 
+                    class="h-16 w-auto object-contain rounded-md shadow-sm border border-slate-100 group-hover:shadow-md transition-shadow"
+                >
+            </a>
+            
+            <div class="hidden sm:flex space-x-6">
+                <a href="#espanol" class="text-slate-500 hover:text-blue-600 font-medium transition-colors">Medios en Español</a>
+                <a href="#ingles" class="text-slate-500 hover:text-indigo-600 font-medium transition-colors">Medios en Inglés</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Teleprompter / News Ticker -->
+    <div class="bg-slate-900 text-slate-200 text-sm border-b border-slate-700 relative flex items-center h-10 overflow-hidden">
+        <!-- Etiqueta Fija Izquierda -->
+        <div class="absolute left-0 z-20 bg-blue-600 text-white font-bold px-4 sm:px-6 h-full flex items-center shadow-[4px_0_10px_rgba(0,0,0,0.5)] uppercase tracking-wider text-xs">
+            <span class="relative flex h-2.5 w-2.5 mr-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+            </span>
+            Último Minuto
+        </div>
+        
+        <!-- Contenedor Animado -->
+        <div class="ticker-wrap h-full flex items-center">
+            <div id="news-ticker" class="ticker-content">
+                <span class="px-4 text-slate-400">Conectando con la agencia de noticias...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido Principal -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+        
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight mb-3">Prensa Escrita Internacional</h1>
+            <p class="text-lg text-slate-500 max-w-2xl mx-auto">Accede a las noticias más relevantes de los principales diarios y agencias de información en todo el mundo.</p>
+        </div>
+
+        <!-- SECCIÓN: Medios en Español -->
+        <section id="espanol" class="mb-16 scroll-mt-24">
+            <div class="flex items-center mb-6">
+                <i class="ph ph-globe-hemisphere-west text-3xl text-blue-600 mr-3"></i>
+                <h2 class="text-2xl font-bold text-slate-800 border-b-2 border-blue-500 pb-1">10 Medios en Español</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <!-- Tarjetas de medios en español -->
+                <a href="https://elpais.com/" target="_blank" rel="noopener noreferrer" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-300 hover:-translate-y-1 transition-all duration-200 group">
+                    <h3 class="font-bold text-lg text-slate-800 group-hover:text-blue-600">El País</h3>
+                    <p class="text-sm text-slate-500 mt-1">España</p>
+                </a>
+                <a href="https://www.elmundo.es/" target="_blank" rel="noopener noreferrer" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-300 hover:-translate-y-1 transition-all duration-200 group">
+                    <h3 class="font-bold text-lg text-slate-800 group-hover:text-blue-600">El Mundo</h3>
+                    <p class="text-sm text-slate-500 mt-1">España</p>
+                </a>
+                <a href="https://www.clarin.com/" target="_blank" rel="noopener noreferrer" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-300 hover:-translate-y-1 transition-all duration-200 group">
+                    <h3 class="font-bold text-lg text-slate-800 group-hover:text-blue-600">Clarín</h3>
+                    <p class="text-sm text-slate-500 mt-1">Argentina</p>
+                </a>
+                <a href="https://www.lanacion.com.ar/" target="_blank" rel="noopener noreferrer" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-300 hover:-translate-y-1 transition-all duration-200 group">
+                    <h3 class="font-bold text-lg text-slate-800 group-hover:text-blue-600">La Nación</h3>
+                    <p class="text-sm text-slate-500 mt-1">Argentina</p>
+                </a>
+                <a href="https://www.infobae.com/" target="_blank" rel="noopener noreferrer" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-300 hover:-translate-y-1 transition-all duration-200 group">
+                    <h3 class="font-bold text-lg text-slate-800 group-hover:text-blue-600">Infobae</h3>
+                    <p class="text-sm text-slate-500 mt-1">América Latina</p>
+                </a>
+                <a href="https://www.eluniversal.com.mx/" target="_blank" rel="noopener noreferrer" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-300 hover:-translate-y-1 transition-all duration-200 group">
+                    <h3 class="font-bold text-lg text-slate-800 group-hover:text-blue-600">El Universal</h3>
+                    <p class="text-sm text-slate-500 mt-1">México</p>
+                </a>
+                <a href="https://www.reforma.com/" target="_blank" rel="noopener noreferrer" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-300 hover:-translate-y-1 transition-all duration-200 group">
+                    <h3 class="font-bold text-lg text-slate-800 group-hover:text-blue-600">Reforma</h3>
+                    <p class="text-sm text-slate-500 mt-1">México</p>
+                </a>
+                <a href="https://www.eltiempo.com/" target="_blank" rel="noopener noreferrer" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-300 hover:-translate-y-1 transition-all duration-200 group">
+                    <h3 class="font-bold text-lg text-slate-800 group-hover:text-blue-600">El Tiempo</h3>
+                    <p class="text-sm text-slate-500 mt-1">Colombia</p>
+                </a>
+                <a href="https://elcomercio.pe/" target="_blank" rel="noopener noreferrer" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-300 hover:-translate-y-1 transition-all duration-200 group">
+                    <h3 class="font-bold text-lg text-slate-800 group-hover:text-blue-600">El Comercio</h3>
+                    <p class="text-sm text-slate-500 mt-1">Perú</p>
+                </a>
+                <a href="https://www.bbc.com/mundo" target="_blank" rel="noopener noreferrer" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-300 hover:-translate-y-1 transition-all duration-200 group">
+                    <h3 class="font-bold text-lg text-slate-800 group-hover:text-blue-600">BBC Mundo</h3>
+                    <p class="text-sm text-slate-500 mt-1">Reino Unido / Global</p>
+                </a>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: Medios en Inglés -->
+        <section id="ingles" class="mb-10 scroll-mt-24">
+            <div class="flex items-center mb-6">
+                <i class="ph ph-globe-hemisphere-east text-3xl text-indigo-600 mr-3"></i>
+                <h2 class="text-2xl font-bold text-slate-800 border-b-2 border-indigo-500 pb-1">10 Medios en Inglés (English Press)</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <!-- Tarjetas de medios en inglés -->
+                <a href="https://www.nytimes.com/" target="_blank" rel="noopener noreferrer" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 hover:-translate-y-1 transition-all duration-200 group">
+                    <h3 class="font-bold text-lg text-slate-800 group-hover:text-indigo-600">The New York Times</h3>
+                    <p class="text-sm text-slate-500 mt-1">United States</p>
+                </a>
+                <a href="https://www.washingtonpost.com/" target="_blank" rel="noopener noreferrer" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 hover:-translate-y-1 transition-all duration-200 group">
+                    <h3 class="font-bold text-lg text-slate-800 group-hover:text-indigo-600">Washington Post</h3>
+                    <p class="text-sm text-slate-500 mt-1">United States</p>
+                </a>
+                <a href="https://www.theguardian.com/international" target="_blank" rel="noopener noreferrer" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 hover:-translate-y-1 transition-all duration-200 group">
+                    <h3 class="font-bold text-lg text-slate-800 group-hover:text-indigo-600">The Guardian</h3>
+                    <p class="text-sm text-slate-500 mt-1">United Kingdom</p>
+                </a>
+                <a href="https://www.bbc.com/news" target="_blank" rel="noopener noreferrer" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 hover:-translate-y-1 transition-all duration-200 group">
+                    <h3 class="font-bold text-lg text-slate-800 group-hover:text-indigo-600">BBC News</h3>
+                    <p class="text-sm text-slate-500 mt-1">United Kingdom</p>
+                </a>
+                <a href="https://www.wsj.com/" target="_blank" rel="noopener noreferrer" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 hover:-translate-y-1 transition-all duration-200 group">
+                    <h3 class="font-bold text-lg text-slate-800 group-hover:text-indigo-600">Wall Street Journal</h3>
+                    <p class="text-sm text-slate-500 mt-1">United States</p>
+                </a>
+                <a href="https://www.reuters.com/" target="_blank" rel="noopener noreferrer" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 hover:-translate-y-1 transition-all duration-200 group">
+                    <h3 class="font-bold text-lg text-slate-800 group-hover:text-indigo-600">Reuters</h3>
+                    <p class="text-sm text-slate-500 mt-1">Global</p>
+                </a>
+                <a href="https://apnews.com/" target="_blank" rel="noopener noreferrer" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 hover:-translate-y-1 transition-all duration-200 group">
+                    <h3 class="font-bold text-lg text-slate-800 group-hover:text-indigo-600">Associated Press</h3>
+                    <p class="text-sm text-slate-500 mt-1">United States</p>
+                </a>
+                <a href="https://www.aljazeera.com/" target="_blank" rel="noopener noreferrer" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 hover:-translate-y-1 transition-all duration-200 group">
+                    <h3 class="font-bold text-lg text-slate-800 group-hover:text-indigo-600">Al Jazeera</h3>
+                    <p class="text-sm text-slate-500 mt-1">Qatar / Global</p>
+                </a>
+                <a href="https://www.thetimes.co.uk/" target="_blank" rel="noopener noreferrer" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 hover:-translate-y-1 transition-all duration-200 group">
+                    <h3 class="font-bold text-lg text-slate-800 group-hover:text-indigo-600">The Times</h3>
+                    <p class="text-sm text-slate-500 mt-1">United Kingdom</p>
+                </a>
+                <a href="https://edition.cnn.com/" target="_blank" rel="noopener noreferrer" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 hover:-translate-y-1 transition-all duration-200 group">
+                    <h3 class="font-bold text-lg text-slate-800 group-hover:text-indigo-600">CNN International</h3>
+                    <p class="text-sm text-slate-500 mt-1">United States</p>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Pie de página simple -->
+    <footer class="bg-slate-900 text-slate-400 py-6 text-center mt-auto">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>&copy; 2026 Directorio de Prensa. Todos los enlaces dirigen a sus respectivos propietarios.</p>
+        </div>
+    </footer>
+
+    <!-- Script para cargar el feed de noticias desde la API -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const tickerContainer = document.getElementById('news-ticker');
+            
+            // Usamos rss2json como un proxy público para convertir feeds de noticias en JSON (evita problemas de CORS)
+            // Aquí le pasamos el feed de titulares internacionales
+            const rssUrl = 'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada';
+            const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'ok') {
+                        let html = '';
+                        // Tomamos las últimas 12 noticias
+                        data.items.slice(0, 12).forEach(item => {
+                            html += `
+                                <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-6 hover:text-white transition-colors duration-200">
+                                    <span class="text-blue-400 mr-2 text-lg leading-none">•</span>
+                                    ${item.title}
+                                </a>
+                            `;
+                        });
+                        tickerContainer.innerHTML = html;
+                    } else {
+                        tickerContainer.innerHTML = '<span class="px-4 text-red-400">No se pudieron cargar las noticias en vivo.</span>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al obtener noticias:', error);
+                    tickerContainer.innerHTML = '<span class="px-4 text-red-400">Error de conexión al obtener noticias.</span>';
+                });
+        });
+    </script>
+
+</body>
+</html>
