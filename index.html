@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,14 +10,25 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Cargamos Tailwind CSS -->
+    <!-- Cargamos Tailwind CSS y habilitamos el modo oscuro manual -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+        
+        // Comprobar la preferencia del usuario guardada antes de renderizar (evita destellos de luz)
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+    
     <!-- Cargamos Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
     <style>
-        html { scroll-behavior: smooth; }
-        
         /* Animación del Teleprompter / Ticker */
         .ticker-wrap { width: 100%; overflow: hidden; position: relative; white-space: nowrap; }
         .ticker-content { display: inline-block; padding-left: 100%; animation: ticker 40s linear infinite; }
@@ -34,10 +45,14 @@
             80% { width: 90%; }
             100% { width: 100%; }
         }
+        
+        /* Ocultar el scrollbar en el panel de ajustes para mantenerlo limpio */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <!-- Aplicamos la nueva fuente Inter a todo el body -->
-<body class="bg-[#F8FAFC] text-slate-800 font-['Inter',sans-serif] antialiased min-h-screen flex flex-col selection:bg-blue-200 selection:text-blue-900 overflow-x-hidden">
+<body class="bg-[#F8FAFC] dark:bg-slate-950 text-slate-800 dark:text-slate-200 font-['Inter',sans-serif] antialiased min-h-screen flex flex-col selection:bg-blue-200 selection:text-blue-900 dark:selection:bg-blue-900 dark:selection:text-blue-100 overflow-x-hidden transition-colors duration-300">
 
     <!-- Pantalla de Carga Inicial -->
     <div id="loading-screen" class="fixed inset-0 z-[100] bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 flex flex-col items-center justify-center transition-opacity duration-700 ease-in-out">
@@ -65,8 +80,105 @@
         </div>
     </div>
 
+    <!-- Panel Lateral de Ajustes (Offcanvas) -->
+    <div id="settings-overlay" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 opacity-0 invisible transition-all duration-300"></div>
+    
+    <div id="settings-panel" class="fixed top-0 right-0 h-full w-80 bg-white dark:bg-slate-900 shadow-[-10px_0_40px_rgba(0,0,0,0.1)] dark:shadow-[-10px_0_40px_rgba(0,0,0,0.5)] z-[60] transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col border-l border-slate-200 dark:border-slate-800">
+        
+        <!-- Cabecera de Ajustes -->
+        <div class="flex items-center justify-between px-6 py-5 border-b border-slate-200 dark:border-slate-800">
+            <div class="flex items-center space-x-3">
+                <i class="ph ph-sliders text-xl text-blue-600 dark:text-blue-500"></i>
+                <h3 class="font-bold text-lg text-slate-900 dark:text-white">Ajustes de Interfaz</h3>
+            </div>
+            <button id="close-settings-btn" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors focus:outline-none">
+                <i class="ph ph-x text-2xl"></i>
+            </button>
+        </div>
+
+        <!-- Contenido de Ajustes -->
+        <div class="flex-grow overflow-y-auto no-scrollbar p-6">
+            
+            <!-- Apariencia -->
+            <div class="mb-8">
+                <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">Apariencia</p>
+                
+                <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700/50">
+                    <div class="flex items-center space-x-3">
+                        <div class="h-8 w-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300">
+                            <i id="theme-icon" class="ph-fill ph-moon text-lg"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-slate-900 dark:text-white">Modo Oscuro</p>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400">Reduce el brillo de la interfaz</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Toggle Switch -->
+                    <button id="theme-toggle" class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 bg-slate-300 dark:bg-blue-600">
+                        <span id="theme-toggle-dot" class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-1 dark:translate-x-6 shadow-sm"></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Personalización de Fuentes (Próximamente) -->
+            <div>
+                <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">Feed Personalizado</p>
+                
+                <div class="space-y-3">
+                    <!-- Opción 1: Fuentes Favoritas -->
+                    <div class="relative overflow-hidden group">
+                        <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-800/30 p-4 rounded-xl border border-slate-200 dark:border-slate-700/50 opacity-60">
+                            <div class="flex items-center space-x-3">
+                                <div class="h-8 w-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500">
+                                    <i class="ph ph-star text-lg"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-900 dark:text-white">Priorizar Favoritos</p>
+                                    <p class="text-[10px] text-slate-500 dark:text-slate-400">Mostrar solo los medios que elijas</p>
+                                </div>
+                            </div>
+                            <i class="ph ph-caret-right text-slate-400"></i>
+                        </div>
+                        <!-- Overlay "Próximamente" -->
+                        <div class="absolute inset-0 bg-white/40 dark:bg-slate-900/40 backdrop-blur-[1px] flex items-center justify-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span class="bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-blue-200 dark:border-blue-800/50">Próximamente</span>
+                        </div>
+                    </div>
+
+                    <!-- Opción 2: Categorías -->
+                    <div class="relative overflow-hidden group">
+                        <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-800/30 p-4 rounded-xl border border-slate-200 dark:border-slate-700/50 opacity-60">
+                            <div class="flex items-center space-x-3">
+                                <div class="h-8 w-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500">
+                                    <i class="ph ph-squares-four text-lg"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-900 dark:text-white">Filtro por Categorías</p>
+                                    <p class="text-[10px] text-slate-500 dark:text-slate-400">Tecnología, Finanzas, Deportes...</p>
+                                </div>
+                            </div>
+                            <i class="ph ph-caret-right text-slate-400"></i>
+                        </div>
+                        <!-- Overlay "Próximamente" -->
+                        <div class="absolute inset-0 bg-white/40 dark:bg-slate-900/40 backdrop-blur-[1px] flex items-center justify-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span class="bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-blue-200 dark:border-blue-800/50">Próximamente</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        
+        <!-- Footer de Ajustes -->
+        <div class="p-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800">
+            <p class="text-xs text-center text-slate-500 dark:text-slate-400 font-medium">ECNEWS V.1.0 &bull; Estalingrado Corp.</p>
+        </div>
+    </div>
+
+
     <!-- Encabezado Estilo Dashboard Glassmorphism -->
-    <header class="bg-white/90 backdrop-blur-md shadow-[0_1px_3px_rgba(0,0,0,0.05)] border-b border-slate-200/80 sticky top-0 z-40 relative">
+    <header class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md shadow-[0_1px_3px_rgba(0,0,0,0.05)] border-b border-slate-200/80 dark:border-slate-800/80 sticky top-0 z-40 relative transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
             
             <!-- Logotipo con Menú Desplegable Mejorado -->
@@ -75,63 +187,70 @@
                     <img 
                         src="https://64.media.tumblr.com/527332b08521675a2cf2ee6f30c96a68/c124e1e4e331179f-ec/s500x750/ac10b6fb2ded5c5b8d16c32099bb49e2904104fa.jpg" 
                         alt="Logo Estalingrado Corp" 
-                        class="h-10 w-10 sm:h-11 sm:w-11 object-cover rounded-full shadow-sm border border-slate-200 group-hover:border-blue-400 transition-colors"
+                        class="h-10 w-10 sm:h-11 sm:w-11 object-cover rounded-full shadow-sm border border-slate-200 dark:border-slate-700 group-hover:border-blue-400 transition-colors"
                     >
                     <div class="ml-2 sm:ml-3 text-left hidden sm:block">
-                        <p class="text-[13px] font-bold tracking-widest uppercase text-slate-900 leading-none">ECNEWS</p>
-                        <p class="text-[9px] text-slate-400 font-semibold uppercase tracking-widest mt-0.5">Estalingrado Corp.</p>
+                        <p class="text-[13px] font-bold tracking-widest uppercase text-slate-900 dark:text-white leading-none transition-colors">ECNEWS</p>
+                        <p class="text-[9px] text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-widest mt-0.5">Estalingrado Corp.</p>
                     </div>
-                    <i class="ph ph-caret-down ml-1.5 sm:ml-2 text-slate-400 group-hover:text-blue-600 transition-colors"></i>
+                    <i class="ph ph-caret-down ml-1.5 sm:ml-2 text-slate-400 dark:text-slate-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"></i>
                 </button>
                 
                 <!-- Menú Desplegable de Apps -->
-                <div class="absolute left-0 top-full mt-2 w-64 sm:w-72 bg-white rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 overflow-hidden transform origin-top-left group-hover:scale-100 scale-95">
-                    <div class="px-5 py-3 bg-slate-50/50 border-b border-slate-100">
-                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Aplicaciones de red</p>
+                <div class="absolute left-0 top-full mt-2 w-64 sm:w-72 bg-white dark:bg-slate-800 rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] dark:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] border border-slate-100 dark:border-slate-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 overflow-hidden transform origin-top-left group-hover:scale-100 scale-95">
+                    <div class="px-5 py-3 bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700">
+                        <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Aplicaciones de red</p>
                     </div>
                     <ul class="py-1">
-                        <li><a href="https://nicotips27.github.io/Estalingrado-corp-Buscador-/" class="flex items-center px-5 py-3 text-sm text-slate-600 hover:bg-blue-50/50 hover:text-blue-700 font-medium transition-colors"><i class="ph ph-magnifying-glass mr-3 text-lg text-blue-500"></i>Buscador Central</a></li>
-                        <li><a href="https://nicotips27.github.io/ec-download/" class="flex items-center px-5 py-3 text-sm text-slate-600 hover:bg-blue-50/50 hover:text-blue-700 font-medium transition-colors"><i class="ph ph-download-simple mr-3 text-lg text-blue-500"></i>EC Download</a></li>
-                        <li><a href="https://nicotips27.github.io/EC-chanel/" class="flex items-center px-5 py-3 text-sm text-slate-600 hover:bg-blue-50/50 hover:text-blue-700 font-medium transition-colors"><i class="ph ph-television mr-3 text-lg text-blue-500"></i>EC Channel</a></li>
-                        <li><a href="https://nicotips27.github.io/ECwebSend/" class="flex items-center px-5 py-3 text-sm text-slate-600 hover:bg-blue-50/50 hover:text-blue-700 font-medium transition-colors"><i class="ph ph-paper-plane-tilt mr-3 text-lg text-blue-500"></i>EC Send</a></li>
-                        <li><a href="https://nicotips27.github.io/ec-Intra-net/" class="flex items-center px-5 py-3 text-sm text-slate-600 hover:bg-blue-50/50 hover:text-blue-700 font-medium transition-colors"><i class="ph ph-chart-line-up mr-3 text-lg text-blue-500"></i>Monitor Big Data</a></li>
+                        <li><a href="https://nicotips27.github.io/Estalingrado-corp-Buscador-/" class="flex items-center px-5 py-3 text-sm text-slate-600 dark:text-slate-300 hover:bg-blue-50/50 dark:hover:bg-slate-700 hover:text-blue-700 dark:hover:text-blue-400 font-medium transition-colors"><i class="ph ph-magnifying-glass mr-3 text-lg text-blue-500"></i>Buscador Central</a></li>
+                        <li><a href="https://nicotips27.github.io/ec-download/" class="flex items-center px-5 py-3 text-sm text-slate-600 dark:text-slate-300 hover:bg-blue-50/50 dark:hover:bg-slate-700 hover:text-blue-700 dark:hover:text-blue-400 font-medium transition-colors"><i class="ph ph-download-simple mr-3 text-lg text-blue-500"></i>EC Download</a></li>
+                        <li><a href="https://nicotips27.github.io/EC-chanel/" class="flex items-center px-5 py-3 text-sm text-slate-600 dark:text-slate-300 hover:bg-blue-50/50 dark:hover:bg-slate-700 hover:text-blue-700 dark:hover:text-blue-400 font-medium transition-colors"><i class="ph ph-television mr-3 text-lg text-blue-500"></i>EC Channel</a></li>
+                        <li><a href="https://nicotips27.github.io/ECwebSend/" class="flex items-center px-5 py-3 text-sm text-slate-600 dark:text-slate-300 hover:bg-blue-50/50 dark:hover:bg-slate-700 hover:text-blue-700 dark:hover:text-blue-400 font-medium transition-colors"><i class="ph ph-paper-plane-tilt mr-3 text-lg text-blue-500"></i>EC Send</a></li>
+                        <li><a href="https://nicotips27.github.io/ec-Intra-net/" class="flex items-center px-5 py-3 text-sm text-slate-600 dark:text-slate-300 hover:bg-blue-50/50 dark:hover:bg-slate-700 hover:text-blue-700 dark:hover:text-blue-400 font-medium transition-colors"><i class="ph ph-chart-line-up mr-3 text-lg text-blue-500"></i>Monitor Big Data</a></li>
                     </ul>
                 </div>
             </div>
             
-            <!-- Navegación, Redes y Menú Móvil -->
-            <div class="flex items-center space-x-2 sm:space-x-6">
+            <!-- Navegación, Redes, Ajustes y Menú Móvil -->
+            <div class="flex items-center space-x-2 sm:space-x-4 md:space-x-6">
                 <!-- Enlaces de Secciones (Ocultos en Móvil) -->
-                <div class="hidden md:flex space-x-6 items-center">
-                    <a href="#espanol" class="text-[13px] text-slate-500 hover:text-slate-900 font-semibold uppercase tracking-wider transition-colors">Prensa ES</a>
-                    <a href="#ingles" class="text-[13px] text-slate-500 hover:text-slate-900 font-semibold uppercase tracking-wider transition-colors">Prensa EN</a>
-                    <a href="#noticias-visuales" class="text-[13px] text-slate-500 hover:text-slate-900 font-semibold uppercase tracking-wider transition-colors">Visual Feed</a>
+                <div class="hidden md:flex space-x-6 items-center border-r border-slate-200 dark:border-slate-700 pr-6">
+                    <a href="#espanol" class="text-[13px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-semibold uppercase tracking-wider transition-colors">Prensa ES</a>
+                    <a href="#ingles" class="text-[13px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-semibold uppercase tracking-wider transition-colors">Prensa EN</a>
+                    <a href="#noticias-visuales" class="text-[13px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-semibold uppercase tracking-wider transition-colors">Visual Feed</a>
                 </div>
                 
-                <!-- Botón de Facebook -->
-                <a href="https://web.facebook.com/ecnewslatino" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white h-9 w-9 sm:h-10 sm:w-10 rounded-full transition-all duration-300 border border-blue-100 hover:border-blue-600 shadow-sm" aria-label="Visitar Facebook de ECNEWS Latino">
-                    <i class="ph-fill ph-facebook-logo text-xl sm:text-2xl"></i>
-                </a>
+                <div class="flex items-center space-x-2">
+                    <!-- Botón de Facebook -->
+                    <a href="https://web.facebook.com/ecnewslatino" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-600 text-blue-600 dark:text-blue-400 hover:text-white h-9 w-9 sm:h-10 sm:w-10 rounded-full transition-all duration-300 border border-blue-100 dark:border-blue-800/50 hover:border-blue-600 shadow-sm" aria-label="Visitar Facebook de ECNEWS Latino">
+                        <i class="ph-fill ph-facebook-logo text-xl sm:text-2xl"></i>
+                    </a>
 
-                <!-- Botón de Menú Hamburguesa (Solo visible en Móvil/Tablet) -->
-                <button id="mobile-menu-btn" class="md:hidden flex items-center justify-center h-9 w-9 text-slate-500 hover:text-blue-600 hover:bg-slate-50 rounded-full transition-colors focus:outline-none">
-                    <i class="ph ph-list text-2xl"></i>
-                </button>
+                    <!-- BOTÓN DE AJUSTES -->
+                    <button id="open-settings-btn" class="flex items-center justify-center bg-slate-50 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 h-9 w-9 sm:h-10 sm:w-10 rounded-full transition-all duration-300 border border-slate-200 dark:border-slate-700 shadow-sm" aria-label="Abrir Ajustes">
+                        <i class="ph ph-gear text-xl sm:text-2xl animate-[spin_10s_linear_infinite] hover:animate-none"></i>
+                    </button>
+
+                    <!-- Botón de Menú Hamburguesa (Solo visible en Móvil/Tablet) -->
+                    <button id="mobile-menu-btn" class="md:hidden flex items-center justify-center h-9 w-9 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-full transition-colors focus:outline-none">
+                        <i class="ph ph-list text-2xl"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
         <!-- Menú Desplegable Móvil -->
-        <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 w-full bg-white border-b border-slate-200 shadow-lg overflow-hidden transition-all duration-300">
+        <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-lg overflow-hidden transition-all duration-300">
             <nav class="flex flex-col">
-                <a href="#espanol" class="mobile-link px-6 py-4 border-b border-slate-50 text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600 flex items-center"><i class="ph ph-globe-hemisphere-west text-lg mr-3 text-slate-400"></i> Prensa en Español</a>
-                <a href="#ingles" class="mobile-link px-6 py-4 border-b border-slate-50 text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600 flex items-center"><i class="ph ph-globe-hemisphere-east text-lg mr-3 text-slate-400"></i> Prensa en Inglés</a>
-                <a href="#noticias-visuales" class="mobile-link px-6 py-4 text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600 flex items-center"><i class="ph ph-monitor-play text-lg mr-3 text-slate-400"></i> Visual Feed en Vivo</a>
+                <a href="#espanol" class="mobile-link px-6 py-4 border-b border-slate-50 dark:border-slate-800 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 flex items-center"><i class="ph ph-globe-hemisphere-west text-lg mr-3 text-slate-400"></i> Prensa en Español</a>
+                <a href="#ingles" class="mobile-link px-6 py-4 border-b border-slate-50 dark:border-slate-800 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 flex items-center"><i class="ph ph-globe-hemisphere-east text-lg mr-3 text-slate-400"></i> Prensa en Inglés</a>
+                <a href="#noticias-visuales" class="mobile-link px-6 py-4 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 flex items-center"><i class="ph ph-monitor-play text-lg mr-3 text-slate-400"></i> Visual Feed en Vivo</a>
             </nav>
         </div>
     </header>
 
     <!-- Teleprompter Estilo Bloomberg -->
-    <div class="bg-slate-900 text-slate-300 text-sm border-b border-slate-800 relative flex items-center h-10 overflow-hidden font-medium">
+    <div class="bg-slate-900 dark:bg-black text-slate-300 text-sm border-b border-slate-800 dark:border-slate-900 relative flex items-center h-10 overflow-hidden font-medium">
         <div class="absolute left-0 z-20 bg-blue-600 text-white font-bold px-3 sm:px-6 h-full flex items-center shadow-[4px_0_15px_rgba(0,0,0,0.8)] uppercase tracking-widest text-[10px] sm:text-xs">
             <span class="relative flex h-2 w-2 mr-2 sm:mr-2.5">
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
@@ -152,15 +271,15 @@
         
         <!-- Cabecera principal corporativa -->
         <div class="text-center mb-10 sm:mb-16">
-            <span class="text-blue-600 font-bold tracking-widest text-xs uppercase mb-2 sm:mb-3 block">ECNEWS Portal</span>
-            <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-3 sm:mb-4">Prensa Escrita Internacional</h1>
-            <p class="text-sm sm:text-base text-slate-500 max-w-2xl mx-auto font-light px-2">Acceso centralizado a las fuentes de información y agencias de noticias más relevantes a nivel mundial.</p>
+            <span class="text-blue-600 dark:text-blue-500 font-bold tracking-widest text-xs uppercase mb-2 sm:mb-3 block">ECNEWS Portal</span>
+            <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-3 sm:mb-4 transition-colors">Prensa Escrita Internacional</h1>
+            <p class="text-sm sm:text-base text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-light px-2 transition-colors">Acceso centralizado a las fuentes de información y agencias de noticias más relevantes a nivel mundial.</p>
         </div>
 
-        <!-- NUEVO: Banner Publicitario Elegante (Arriba de Medios en Español) -->
+        <!-- Banner Publicitario Elegante (Arriba de Medios en Español) -->
         <div class="mb-10 sm:mb-14 flex flex-col items-center justify-center w-full max-w-4xl mx-auto px-2">
             <span class="text-[9px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-2 sm:mb-3">Espacio Patrocinado</span>
-            <a href="#" class="block w-full rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-slate-200/80 bg-white p-1">
+            <a href="#" class="block w-full rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-1">
                 <img 
                     src="https://static.wixstatic.com/media/9dbdc2_3a4483a3e19a415285aa91477bf99087~mv2.gif" 
                     alt="Banner Publicitario" 
@@ -171,157 +290,157 @@
 
         <!-- SECCIÓN: Medios en Español -->
         <section id="espanol" class="mb-14 scroll-mt-28">
-            <div class="flex items-center justify-between mb-6 sm:mb-8 pb-3 border-b border-slate-200/80">
+            <div class="flex items-center justify-between mb-6 sm:mb-8 pb-3 border-b border-slate-200/80 dark:border-slate-800">
                 <div class="flex items-center">
                     <div class="h-5 w-1 sm:h-6 sm:w-1.5 bg-blue-600 rounded-full mr-2 sm:mr-3"></div>
-                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Medios en Español</h2>
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight transition-colors">Medios en Español</h2>
                 </div>
-                <span class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">20 Fuentes</span>
+                <span class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">20 Fuentes</span>
             </div>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
-                <!-- Tarjetas Ultra Clean -->
-                <a href="https://elpais.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-300 transition-all duration-300">
+                <!-- Tarjetas Ultra Clean - Adaptadas a Dark Mode -->
+                <a href="https://elpais.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-blue-300 dark:hover:border-blue-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-blue-600 transition-colors">El País</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-blue-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">El País</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-blue-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">España</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">España</p>
                 </a>
-                <a href="https://www.elmundo.es/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-300 transition-all duration-300">
+                <a href="https://www.elmundo.es/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-blue-300 dark:hover:border-blue-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-blue-600 transition-colors">El Mundo</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-blue-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">El Mundo</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-blue-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">España</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">España</p>
                 </a>
-                <a href="https://www.clarin.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-300 transition-all duration-300">
+                <a href="https://www.clarin.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-blue-300 dark:hover:border-blue-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-blue-600 transition-colors">Clarín</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-blue-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Clarín</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-blue-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Argentina</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Argentina</p>
                 </a>
-                <a href="https://www.lanacion.com.ar/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-300 transition-all duration-300">
+                <a href="https://www.lanacion.com.ar/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-blue-300 dark:hover:border-blue-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-blue-600 transition-colors">La Nación</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-blue-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">La Nación</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-blue-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Argentina</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Argentina</p>
                 </a>
-                <a href="https://www.infobae.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-300 transition-all duration-300">
+                <a href="https://www.infobae.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-blue-300 dark:hover:border-blue-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-blue-600 transition-colors">Infobae</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-blue-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Infobae</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-blue-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">América Latina</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">América Latina</p>
                 </a>
-                <a href="https://www.eluniversal.com.mx/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-300 transition-all duration-300">
+                <a href="https://www.eluniversal.com.mx/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-blue-300 dark:hover:border-blue-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-blue-600 transition-colors">El Universal</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-blue-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">El Universal</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-blue-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">México</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">México</p>
                 </a>
-                <a href="https://www.reforma.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-300 transition-all duration-300">
+                <a href="https://www.reforma.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-blue-300 dark:hover:border-blue-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-blue-600 transition-colors">Reforma</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-blue-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Reforma</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-blue-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">México</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">México</p>
                 </a>
-                <a href="https://www.eltiempo.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-300 transition-all duration-300">
+                <a href="https://www.eltiempo.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-blue-300 dark:hover:border-blue-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-blue-600 transition-colors">El Tiempo</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-blue-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">El Tiempo</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-blue-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Colombia</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Colombia</p>
                 </a>
-                <a href="https://elcomercio.pe/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-300 transition-all duration-300">
+                <a href="https://elcomercio.pe/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-blue-300 dark:hover:border-blue-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-blue-600 transition-colors">El Comercio</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-blue-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">El Comercio</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-blue-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Perú</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Perú</p>
                 </a>
-                <a href="https://www.bbc.com/mundo" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-300 transition-all duration-300">
+                <a href="https://www.bbc.com/mundo" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-blue-300 dark:hover:border-blue-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-blue-600 transition-colors">BBC Mundo</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-blue-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">BBC Mundo</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-blue-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Global</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Global</p>
                 </a>
                 
                 <!-- MEDIOS TECNOLÓGICOS Y GENERALES EN ESPAÑOL -->
-                <a href="https://www.xataka.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-300 transition-all duration-300">
+                <a href="https://www.xataka.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-blue-300 dark:hover:border-blue-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-blue-600 transition-colors">Xataka</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-blue-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Xataka</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-blue-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-blue-500 uppercase tracking-widest">Tecnología</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest">Tecnología</p>
                 </a>
-                <a href="https://hipertextual.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-300 transition-all duration-300">
+                <a href="https://hipertextual.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-blue-300 dark:hover:border-blue-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-blue-600 transition-colors">Hipertextual</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-blue-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Hipertextual</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-blue-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-blue-500 uppercase tracking-widest">Tecnología</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest">Tecnología</p>
                 </a>
-                <a href="https://www.genbeta.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-300 transition-all duration-300">
+                <a href="https://www.genbeta.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-blue-300 dark:hover:border-blue-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-blue-600 transition-colors">Genbeta</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-blue-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Genbeta</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-blue-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-blue-500 uppercase tracking-widest">Software / Tech</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest">Software / Tech</p>
                 </a>
-                <a href="https://es.gizmodo.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-300 transition-all duration-300">
+                <a href="https://es.gizmodo.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-blue-300 dark:hover:border-blue-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-blue-600 transition-colors">Gizmodo ES</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-blue-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Gizmodo ES</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-blue-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-blue-500 uppercase tracking-widest">Tecnología</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest">Tecnología</p>
                 </a>
-                <a href="https://www.3djuegos.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-300 transition-all duration-300">
+                <a href="https://www.3djuegos.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-blue-300 dark:hover:border-blue-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-blue-600 transition-colors">3DJuegos</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-blue-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">3DJuegos</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-blue-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-blue-500 uppercase tracking-widest">Gaming / Tech</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest">Gaming / Tech</p>
                 </a>
-                <a href="https://cnnespanol.cnn.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-300 transition-all duration-300">
+                <a href="https://cnnespanol.cnn.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-blue-300 dark:hover:border-blue-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-blue-600 transition-colors">CNN Español</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-blue-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">CNN Español</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-blue-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Global</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Global</p>
                 </a>
-                <a href="https://www.rtve.es/noticias/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-300 transition-all duration-300">
+                <a href="https://www.rtve.es/noticias/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-blue-300 dark:hover:border-blue-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-blue-600 transition-colors">RTVE</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-blue-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">RTVE</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-blue-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">España</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">España</p>
                 </a>
-                <a href="https://www.lavanguardia.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-300 transition-all duration-300">
+                <a href="https://www.lavanguardia.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-blue-300 dark:hover:border-blue-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-blue-600 transition-colors">La Vanguardia</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-blue-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">La Vanguardia</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-blue-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">España</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">España</p>
                 </a>
-                <a href="https://www.elespanol.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-300 transition-all duration-300">
+                <a href="https://www.elespanol.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-blue-300 dark:hover:border-blue-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-blue-600 transition-colors">El Español</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-blue-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">El Español</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-blue-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">España</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">España</p>
                 </a>
-                <a href="https://www.abc.es/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-300 transition-all duration-300">
+                <a href="https://www.abc.es/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-blue-300 dark:hover:border-blue-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-blue-600 transition-colors">ABC</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-blue-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">ABC</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-blue-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">España</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">España</p>
                 </a>
             </div>
         </section>
@@ -329,7 +448,7 @@
         <!-- Banner Publicitario Elegante -->
         <div class="my-10 sm:my-14 flex flex-col items-center justify-center w-full max-w-4xl mx-auto px-2">
             <span class="text-[9px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-2 sm:mb-3">Espacio Patrocinado</span>
-            <a href="#" class="block w-full rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-slate-200/80 bg-white p-1">
+            <a href="#" class="block w-full rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-1">
                 <img 
                     src="https://static.wixstatic.com/media/9dbdc2_3a4483a3e19a415285aa91477bf99087~mv2.gif" 
                     alt="Banner Publicitario" 
@@ -340,176 +459,176 @@
 
         <!-- SECCIÓN: Medios en Inglés -->
         <section id="ingles" class="mb-14 scroll-mt-28">
-            <div class="flex items-center justify-between mb-6 sm:mb-8 pb-3 border-b border-slate-200/80">
+            <div class="flex items-center justify-between mb-6 sm:mb-8 pb-3 border-b border-slate-200/80 dark:border-slate-800">
                 <div class="flex items-center">
                     <div class="h-5 w-1 sm:h-6 sm:w-1.5 bg-indigo-600 rounded-full mr-2 sm:mr-3"></div>
-                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Medios en Inglés</h2>
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight transition-colors">Medios en Inglés</h2>
                 </div>
-                <span class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">20 Sources</span>
+                <span class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">20 Sources</span>
             </div>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
-                <a href="https://www.nytimes.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-indigo-300 transition-all duration-300">
+                <a href="https://www.nytimes.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight">The New York Times</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-indigo-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">The New York Times</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-indigo-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">USA</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">USA</p>
                 </a>
-                <a href="https://www.washingtonpost.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-indigo-300 transition-all duration-300">
+                <a href="https://www.washingtonpost.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight">Washington Post</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-indigo-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">Washington Post</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-indigo-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">USA</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">USA</p>
                 </a>
-                <a href="https://www.theguardian.com/international" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-indigo-300 transition-all duration-300">
+                <a href="https://www.theguardian.com/international" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight">The Guardian</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-indigo-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">The Guardian</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-indigo-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">UK</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">UK</p>
                 </a>
-                <a href="https://www.bbc.com/news" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-indigo-300 transition-all duration-300">
+                <a href="https://www.bbc.com/news" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight">BBC News</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-indigo-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">BBC News</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-indigo-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">UK</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">UK</p>
                 </a>
-                <a href="https://www.wsj.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-indigo-300 transition-all duration-300">
+                <a href="https://www.wsj.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight">Wall Street Journal</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-indigo-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">Wall Street Journal</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-indigo-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">USA</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">USA</p>
                 </a>
-                <a href="https://www.reuters.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-indigo-300 transition-all duration-300">
+                <a href="https://www.reuters.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight">Reuters</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-indigo-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">Reuters</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-indigo-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Global</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Global</p>
                 </a>
-                <a href="https://apnews.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-indigo-300 transition-all duration-300">
+                <a href="https://apnews.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight">Associated Press</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-indigo-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">Associated Press</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-indigo-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">USA</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">USA</p>
                 </a>
-                <a href="https://www.aljazeera.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-indigo-300 transition-all duration-300">
+                <a href="https://www.aljazeera.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight">Al Jazeera</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-indigo-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">Al Jazeera</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-indigo-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Qatar</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Qatar</p>
                 </a>
-                <a href="https://www.thetimes.co.uk/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-indigo-300 transition-all duration-300">
+                <a href="https://www.thetimes.co.uk/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight">The Times</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-indigo-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">The Times</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-indigo-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">UK</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">UK</p>
                 </a>
-                <a href="https://edition.cnn.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-indigo-300 transition-all duration-300">
+                <a href="https://edition.cnn.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight">CNN Intl.</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-indigo-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">CNN Intl.</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-indigo-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">USA</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">USA</p>
                 </a>
 
                 <!-- MEDIOS TECNOLÓGICOS Y GENERALES EN INGLÉS -->
-                <a href="https://techcrunch.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-indigo-300 transition-all duration-300">
+                <a href="https://techcrunch.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight">TechCrunch</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-indigo-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">TechCrunch</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-indigo-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-indigo-500 uppercase tracking-widest">Technology</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-widest">Technology</p>
                 </a>
-                <a href="https://www.theverge.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-indigo-300 transition-all duration-300">
+                <a href="https://www.theverge.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight">The Verge</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-indigo-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">The Verge</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-indigo-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-indigo-500 uppercase tracking-widest">Technology</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-widest">Technology</p>
                 </a>
-                <a href="https://www.wired.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-indigo-300 transition-all duration-300">
+                <a href="https://www.wired.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight">Wired</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-indigo-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">Wired</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-indigo-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-indigo-500 uppercase tracking-widest">Technology</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-widest">Technology</p>
                 </a>
-                <a href="https://www.engadget.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-indigo-300 transition-all duration-300">
+                <a href="https://www.engadget.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight">Engadget</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-indigo-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">Engadget</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-indigo-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-indigo-500 uppercase tracking-widest">Technology</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-widest">Technology</p>
                 </a>
-                <a href="https://arstechnica.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-indigo-300 transition-all duration-300">
+                <a href="https://arstechnica.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight">Ars Technica</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-indigo-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">Ars Technica</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-indigo-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-indigo-500 uppercase tracking-widest">Technology</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-widest">Technology</p>
                 </a>
-                <a href="https://www.bloomberg.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-indigo-300 transition-all duration-300">
+                <a href="https://www.bloomberg.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight">Bloomberg</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-indigo-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">Bloomberg</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-indigo-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-indigo-400 uppercase tracking-widest">Finance / Tech</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-indigo-400 dark:text-indigo-300 uppercase tracking-widest">Finance / Tech</p>
                 </a>
-                <a href="https://www.forbes.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-indigo-300 transition-all duration-300">
+                <a href="https://www.forbes.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight">Forbes</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-indigo-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">Forbes</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-indigo-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-indigo-400 uppercase tracking-widest">Business / Tech</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-indigo-400 dark:text-indigo-300 uppercase tracking-widest">Business / Tech</p>
                 </a>
-                <a href="https://www.cnbc.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-indigo-300 transition-all duration-300">
+                <a href="https://www.cnbc.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight">CNBC</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-indigo-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">CNBC</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-indigo-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-indigo-400 uppercase tracking-widest">Business / Tech</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-indigo-400 dark:text-indigo-300 uppercase tracking-widest">Business / Tech</p>
                 </a>
-                <a href="https://www.independent.co.uk/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-indigo-300 transition-all duration-300">
+                <a href="https://www.independent.co.uk/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight">The Independent</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-indigo-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">The Independent</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-indigo-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">UK</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">UK</p>
                 </a>
-                <a href="https://www.ft.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white p-4 sm:p-5 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-indigo-300 transition-all duration-300">
+                <a href="https://www.ft.com/" target="_blank" rel="noopener noreferrer" class="group flex flex-col justify-between bg-white dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-all duration-300">
                     <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight">Financial Times</h3>
-                        <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-indigo-500 transition-colors"></i>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">Financial Times</h3>
+                        <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-indigo-500 transition-colors"></i>
                     </div>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Global</p>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Global</p>
                 </a>
             </div>
         </section>
 
         <!-- SECCIÓN: Feed Estilo Discover Corporativo -->
-        <section id="noticias-visuales" class="mb-10 sm:mb-16 pt-10 sm:pt-16 mt-6 sm:mt-8 border-t border-slate-200 scroll-mt-28">
+        <section id="noticias-visuales" class="mb-10 sm:mb-16 pt-10 sm:pt-16 mt-6 sm:mt-8 border-t border-slate-200 dark:border-slate-800 scroll-mt-28">
             <div class="text-center mb-8 sm:mb-12">
-                <span class="text-indigo-600 font-bold tracking-widest text-xs uppercase mb-2 sm:mb-3 block">Tiempo Real</span>
-                <h2 class="text-3xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-2 sm:mb-3">Feed Visual</h2>
-                <p class="text-sm sm:text-base text-slate-500 max-w-2xl mx-auto font-light px-2">Visualización inmersiva de las principales portadas informativas y tecnológicas.</p>
+                <span class="text-indigo-600 dark:text-indigo-500 font-bold tracking-widest text-xs uppercase mb-2 sm:mb-3 block">Tiempo Real</span>
+                <h2 class="text-3xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-2 sm:mb-3 transition-colors">Feed Visual</h2>
+                <p class="text-sm sm:text-base text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-light px-2 transition-colors">Visualización inmersiva de las principales portadas informativas y tecnológicas.</p>
             </div>
 
             <!-- Feed Español con imágenes -->
             <div class="mb-10 sm:mb-14">
                 <!-- Noticias Generales ES -->
                 <div class="flex items-center mb-6 sm:mb-8">
-                    <h3 class="text-lg sm:text-xl font-bold text-slate-800 border-l-4 border-blue-500 pl-3">Destacados en Español</h3>
+                    <h3 class="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-200 border-l-4 border-blue-500 pl-3">Destacados en Español</h3>
                 </div>
                 <div id="grid-noticias-es" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6 mb-10 sm:mb-12">
-                    <div class="col-span-full py-10 sm:py-12 flex justify-center items-center text-slate-400 text-sm font-medium tracking-wide">
+                    <div class="col-span-full py-10 sm:py-12 flex justify-center items-center text-slate-400 dark:text-slate-500 text-sm font-medium tracking-wide">
                         <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -518,10 +637,10 @@
                     </div>
                 </div>
 
-                <!-- NUEVO: Banner Publicitario (Arriba de Tecnología en Español) -->
+                <!-- Banner Publicitario (Arriba de Tecnología en Español) -->
                 <div class="mb-10 sm:mb-14 flex flex-col items-center justify-center w-full max-w-4xl mx-auto px-2">
                     <span class="text-[9px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-2 sm:mb-3">Espacio Patrocinado</span>
-                    <a href="#" class="block w-full rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-slate-200/80 bg-white p-1">
+                    <a href="#" class="block w-full rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-1">
                         <img 
                             src="https://static.wixstatic.com/media/9dbdc2_3a4483a3e19a415285aa91477bf99087~mv2.gif" 
                             alt="Banner Publicitario" 
@@ -532,10 +651,10 @@
 
                 <!-- Noticias Tecnología ES -->
                 <div class="flex items-center mb-6 sm:mb-8">
-                    <h3 class="text-lg sm:text-xl font-bold text-slate-800 border-l-4 border-cyan-500 pl-3">Tecnología en Español</h3>
+                    <h3 class="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-200 border-l-4 border-cyan-500 pl-3">Tecnología en Español</h3>
                 </div>
                 <div id="grid-noticias-es-tech" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
-                    <div class="col-span-full py-10 sm:py-12 flex justify-center items-center text-slate-400 text-sm font-medium tracking-wide">
+                    <div class="col-span-full py-10 sm:py-12 flex justify-center items-center text-slate-400 dark:text-slate-500 text-sm font-medium tracking-wide">
                         <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-cyan-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -548,7 +667,7 @@
             <!-- Segundo Banner Publicitario -->
             <div class="my-10 sm:my-14 flex flex-col items-center justify-center w-full max-w-4xl mx-auto px-2">
                 <span class="text-[9px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-2 sm:mb-3">Espacio Patrocinado</span>
-                <a href="#" class="block w-full rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-slate-200/80 bg-white p-1">
+                <a href="#" class="block w-full rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-1">
                     <img 
                         src="https://static.wixstatic.com/media/9dbdc2_3a4483a3e19a415285aa91477bf99087~mv2.gif" 
                         alt="Banner Publicitario" 
@@ -561,10 +680,10 @@
             <div class="mb-10 sm:mb-14">
                 <!-- Noticias Generales EN -->
                 <div class="flex items-center mb-6 sm:mb-8">
-                    <h3 class="text-lg sm:text-xl font-bold text-slate-800 border-l-4 border-indigo-500 pl-3">Destacados en Inglés</h3>
+                    <h3 class="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-200 border-l-4 border-indigo-500 pl-3">Destacados en Inglés</h3>
                 </div>
                 <div id="grid-noticias-en" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6 mb-10 sm:mb-12">
-                    <div class="col-span-full py-10 sm:py-12 flex justify-center items-center text-slate-400 text-sm font-medium tracking-wide">
+                    <div class="col-span-full py-10 sm:py-12 flex justify-center items-center text-slate-400 dark:text-slate-500 text-sm font-medium tracking-wide">
                         <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -575,10 +694,10 @@
 
                 <!-- Noticias Tecnología EN -->
                 <div class="flex items-center mb-6 sm:mb-8">
-                    <h3 class="text-lg sm:text-xl font-bold text-slate-800 border-l-4 border-violet-500 pl-3">Technology in English</h3>
+                    <h3 class="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-200 border-l-4 border-violet-500 pl-3">Technology in English</h3>
                 </div>
                 <div id="grid-noticias-en-tech" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
-                    <div class="col-span-full py-10 sm:py-12 flex justify-center items-center text-slate-400 text-sm font-medium tracking-wide">
+                    <div class="col-span-full py-10 sm:py-12 flex justify-center items-center text-slate-400 dark:text-slate-500 text-sm font-medium tracking-wide">
                         <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-violet-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -616,7 +735,66 @@
 
     <!-- Scripts -->
     <script>
-        // Lógica para el Menú Móvil
+        // --- Lógica del Modo Oscuro y Panel de Ajustes ---
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeToggleDot = document.getElementById('theme-toggle-dot');
+        const themeIcon = document.getElementById('theme-icon');
+        
+        const openSettingsBtn = document.getElementById('open-settings-btn');
+        const closeSettingsBtn = document.getElementById('close-settings-btn');
+        const settingsPanel = document.getElementById('settings-panel');
+        const settingsOverlay = document.getElementById('settings-overlay');
+
+        // Función para actualizar UI del switch según el tema actual
+        const updateThemeUI = () => {
+            if (document.documentElement.classList.contains('dark')) {
+                themeToggleDot.classList.add('translate-x-6');
+                themeToggleDot.classList.remove('translate-x-1');
+                themeToggleBtn.classList.add('bg-blue-600');
+                themeToggleBtn.classList.remove('bg-slate-300');
+                themeIcon.classList.replace('ph-moon', 'ph-sun');
+            } else {
+                themeToggleDot.classList.remove('translate-x-6');
+                themeToggleDot.classList.add('translate-x-1');
+                themeToggleBtn.classList.remove('bg-blue-600');
+                themeToggleBtn.classList.add('bg-slate-300');
+                themeIcon.classList.replace('ph-sun', 'ph-moon');
+            }
+        };
+
+        // Inicializar UI al cargar
+        updateThemeUI();
+
+        // Cambiar tema al hacer clic en el switch
+        themeToggleBtn.addEventListener('click', () => {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('color-theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('color-theme', 'dark');
+            }
+            updateThemeUI();
+        });
+
+        // Abrir y cerrar el panel de ajustes
+        const toggleSettings = () => {
+            const isClosed = settingsPanel.classList.contains('translate-x-full');
+            if (isClosed) {
+                settingsPanel.classList.remove('translate-x-full');
+                settingsOverlay.classList.remove('opacity-0', 'invisible');
+            } else {
+                settingsPanel.classList.add('translate-x-full');
+                settingsOverlay.classList.add('opacity-0', 'invisible');
+            }
+        };
+
+        openSettingsBtn.addEventListener('click', toggleSettings);
+        closeSettingsBtn.addEventListener('click', toggleSettings);
+        settingsOverlay.addEventListener('click', toggleSettings);
+
+
+        // --- Lógica para el Menú Móvil ---
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
         const mobileLinks = document.querySelectorAll('.mobile-link');
@@ -632,7 +810,7 @@
             });
         });
 
-        // Lógica de la Pantalla de Carga
+        // --- Lógica de la Pantalla de Carga ---
         window.addEventListener('load', () => {
             setTimeout(() => {
                 const loader = document.getElementById('loading-screen');
@@ -641,6 +819,7 @@
             }, 1800);
         });
 
+        // --- Lógica de Obtención de Noticias (API) ---
         document.addEventListener("DOMContentLoaded", () => {
             const tickerContainer = document.getElementById('news-ticker');
             
@@ -665,7 +844,7 @@
                 })
                 .catch(error => console.error('Error:', error));
 
-            // Función para cargar noticias visuales con tarjetas premium y prevención de errores
+            // Función para cargar noticias visuales con soporte para modo oscuro
             const cargarNoticiasGrid = (rssUrl, containerId, accentColor) => {
                 const apiGridUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
                 
@@ -680,19 +859,19 @@
                                 let cleanDesc = item.description ? item.description.replace(/<[^>]+>/g, '') : '';
                                 
                                 html += `
-                                    <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-200/60 transition-all duration-300 group hover:-translate-y-1">
-                                        <div class="relative h-40 sm:h-44 overflow-hidden bg-slate-100">
+                                    <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="flex flex-col bg-white dark:bg-slate-800/50 rounded-2xl overflow-hidden shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.3)] border border-slate-200/60 dark:border-slate-700/50 transition-all duration-300 group hover:-translate-y-1">
+                                        <div class="relative h-40 sm:h-44 overflow-hidden bg-slate-100 dark:bg-slate-800">
                                             <img src="${imageUrl}" alt="Imagen de noticia" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" onerror="this.src='https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&q=80&w=500'">
-                                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/40 dark:from-slate-900/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                         </div>
                                         <div class="p-4 sm:p-5 flex-grow flex flex-col justify-between">
                                             <div>
                                                 <div class="flex items-center justify-between mb-2 sm:mb-3">
-                                                    <span class="text-[9px] sm:text-[10px] font-bold text-${accentColor}-600 uppercase tracking-widest">${data.feed.title || 'Agencia'}</span>
-                                                    <i class="ph ph-arrow-up-right text-slate-300 group-hover:text-${accentColor}-500 transition-colors"></i>
+                                                    <span class="text-[9px] sm:text-[10px] font-bold text-${accentColor}-600 dark:text-${accentColor}-400 uppercase tracking-widest">${data.feed.title || 'Agencia'}</span>
+                                                    <i class="ph ph-arrow-up-right text-slate-300 dark:text-slate-600 group-hover:text-${accentColor}-500 transition-colors"></i>
                                                 </div>
-                                                <h4 class="font-bold text-sm sm:text-[15px] text-slate-900 leading-snug mb-2 group-hover:text-${accentColor}-600 transition-colors line-clamp-3">${item.title}</h4>
-                                                <p class="text-[11px] sm:text-xs text-slate-500 line-clamp-2 font-light">${cleanDesc}</p>
+                                                <h4 class="font-bold text-sm sm:text-[15px] text-slate-900 dark:text-slate-200 leading-snug mb-2 group-hover:text-${accentColor}-600 dark:group-hover:text-${accentColor}-400 transition-colors line-clamp-3">${item.title}</h4>
+                                                <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 line-clamp-2 font-light">${cleanDesc}</p>
                                             </div>
                                         </div>
                                     </a>
