@@ -53,6 +53,41 @@
         /* Ocultar el scrollbar en el panel de ajustes para mantenerlo limpio */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Badges de sesgo político (Ground News style) */
+        .bias-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 9999px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; line-height: 1.4; }
+        .bias-left { background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; }
+        .dark .bias-left { background: rgba(30,64,175,0.3); color: #93c5fd; border-color: rgba(59,130,246,0.3); }
+        .bias-center-left { background: #e0f2fe; color: #0284c7; border: 1px solid #7dd3fc; }
+        .dark .bias-center-left { background: rgba(14,116,144,0.3); color: #7dd3fc; border-color: rgba(56,189,248,0.3); }
+        .bias-center { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+        .dark .bias-center { background: rgba(71,85,105,0.3); color: #94a3b8; border-color: rgba(100,116,139,0.4); }
+        .bias-center-right { background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
+        .dark .bias-center-right { background: rgba(185,28,28,0.3); color: #fca5a5; border-color: rgba(239,68,68,0.3); }
+        .bias-right { background: #fee2e2; color: #b91c1c; border: 1px solid #f87171; }
+        .dark .bias-right { background: rgba(153,27,27,0.3); color: #f87171; border-color: rgba(248,113,113,0.3); }
+
+        /* Badge de fact-check */
+        .fact-badge { display: inline-flex; align-items: center; gap: 3px; padding: 1px 6px; border-radius: 4px; font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        .fact-high { background: #dcfce7; color: #16a34a; }
+        .dark .fact-high { background: rgba(22,163,74,0.25); color: #86efac; }
+        .fact-medium { background: #fef9c3; color: #ca8a04; }
+        .dark .fact-medium { background: rgba(202,138,4,0.25); color: #fde047; }
+        .fact-low { background: #fee2e2; color: #dc2626; }
+        .dark .fact-low { background: rgba(220,38,38,0.25); color: #fca5a5; }
+
+        /* Barra de distribución */
+        .dist-bar { height: 100%; border-radius: 4px; transition: width 0.6s ease; min-width: 4px; }
+        .dist-bar-left { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+        .dist-bar-center { background: linear-gradient(90deg, #94a3b8, #cbd5e1); }
+        .dist-bar-right { background: linear-gradient(90deg, #f87171, #ef4444); }
+
+        /* Animación para blindspot pulse */
+        @keyframes blindspot-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .blindspot-dot { animation: blindspot-pulse 2s ease-in-out infinite; }
+
+        /* Ocultar tarjetas filtradas */
+        .card-hidden { display: none !important; }
     </style>
 </head>
 <!-- Aplicamos la nueva fuente Inter a todo el body -->
@@ -122,6 +157,32 @@
                     <button id="theme-toggle" class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 bg-slate-300 dark:bg-blue-600">
                         <span id="theme-toggle-dot" class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-1 dark:translate-x-6 shadow-sm"></span>
                     </button>
+                </div>
+            </div>
+
+            <!-- Filtro de Sesgo Político (Ground News Feature) -->
+            <div class="mb-8">
+                <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">Filtro de Sesgo</p>
+                <div class="bg-slate-50 dark:bg-slate-800/30 p-4 rounded-xl border border-slate-200 dark:border-slate-700/50">
+                    <p class="text-xs font-medium text-slate-700 dark:text-slate-300 mb-3">Mostrar fuentes por sesgo político:</p>
+                    <div class="space-y-2">
+                        <label class="flex items-center space-x-3 cursor-pointer group">
+                            <input type="radio" name="bias-filter" value="all" checked class="accent-blue-600">
+                            <span class="text-xs font-medium text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">Todas las fuentes</span>
+                        </label>
+                        <label class="flex items-center space-x-3 cursor-pointer group">
+                            <input type="radio" name="bias-filter" value="left" class="accent-blue-600">
+                            <span class="text-xs font-medium text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors"><span class="inline-block h-2 w-2 rounded-full bg-blue-500 mr-1.5"></span>Izquierda</span>
+                        </label>
+                        <label class="flex items-center space-x-3 cursor-pointer group">
+                            <input type="radio" name="bias-filter" value="center" class="accent-slate-600">
+                            <span class="text-xs font-medium text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors"><span class="inline-block h-2 w-2 rounded-full bg-slate-400 mr-1.5"></span>Centro</span>
+                        </label>
+                        <label class="flex items-center space-x-3 cursor-pointer group">
+                            <input type="radio" name="bias-filter" value="right" class="accent-red-600">
+                            <span class="text-xs font-medium text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors"><span class="inline-block h-2 w-2 rounded-full bg-red-500 mr-1.5"></span>Derecha</span>
+                        </label>
+                    </div>
                 </div>
             </div>
 
@@ -292,6 +353,81 @@
             <span class="text-blue-600 dark:text-blue-500 font-bold tracking-widest text-xs uppercase mb-2 sm:mb-3 block">ECNEWS Portal</span>
             <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-3 sm:mb-4 transition-colors">Prensa Escrita Internacional</h1>
             <p class="text-sm sm:text-base text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-light px-2 transition-colors">Acceso centralizado a las fuentes de información y agencias de noticias más relevantes a nivel mundial.</p>
+        </div>
+
+        <!-- Dashboard de Sesgo Político (Ground News Style) -->
+        <div id="bias-dashboard" class="mb-10 sm:mb-12 bg-white dark:bg-slate-800/40 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 p-5 sm:p-7 shadow-sm scroll-mt-28">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+                <div class="flex items-center space-x-3">
+                    <div class="h-9 w-9 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                        <i class="ph ph-gauge text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-sm sm:text-base">Distribución de Sesgo Político</h3>
+                        <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Distribución ideológica de las fuentes</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2 self-end sm:self-auto">
+                    <span id="bias-total" class="text-[11px] font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">40 fuentes</span>
+                    <button id="reset-bias-filter" class="text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:underline hidden" title="Limpiar filtro">
+                        <i class="ph ph-x-circle"></i> Limpiar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Barras de distribución -->
+            <div class="space-y-2 mb-4">
+                <div class="flex items-center gap-3">
+                    <span class="text-[10px] font-bold text-blue-600 dark:text-blue-400 w-20 text-right uppercase tracking-wider">Izquierda</span>
+                    <div class="flex-1 h-5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
+                        <div id="dist-left" class="dist-bar dist-bar-left" style="width:0%" data-count="0"></div>
+                    </div>
+                    <span id="count-left" class="text-[11px] font-bold text-slate-500 w-8">0</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 w-20 text-right uppercase tracking-wider">Centro</span>
+                    <div class="flex-1 h-5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
+                        <div id="dist-center" class="dist-bar dist-bar-center" style="width:0%" data-count="0"></div>
+                    </div>
+                    <span id="count-center" class="text-[11px] font-bold text-slate-500 w-8">0</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-[10px] font-bold text-red-500 dark:text-red-400 w-20 text-right uppercase tracking-wider">Derecha</span>
+                    <div class="flex-1 h-5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
+                        <div id="dist-right" class="dist-bar dist-bar-right" style="width:0%" data-count="0"></div>
+                    </div>
+                    <span id="count-right" class="text-[11px] font-bold text-slate-500 w-8">0</span>
+                </div>
+            </div>
+
+            <!-- Filtro rápido por sesgo -->
+            <div class="flex flex-wrap items-center gap-2 pt-3 border-t border-slate-200/60 dark:border-slate-700/50">
+                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mr-1">Filtrar:</span>
+                <button class="bias-filter-btn text-[10px] font-bold px-3 py-1.5 rounded-full border transition-all" data-bias="all" style="background:#f1f5f9;color:#475569;border-color:#cbd5e1;">Todas</button>
+                <button class="bias-filter-btn text-[10px] font-bold px-3 py-1.5 rounded-full border transition-all" data-bias="left" style="background:#dbeafe;color:#1d4ed8;border-color:#93c5fd;">Izquierda</button>
+                <button class="bias-filter-btn text-[10px] font-bold px-3 py-1.5 rounded-full border transition-all" data-bias="center" style="background:#f1f5f9;color:#475569;border-color:#cbd5e1;">Centro</button>
+                <button class="bias-filter-btn text-[10px] font-bold px-3 py-1.5 rounded-full border transition-all" data-bias="right" style="background:#fee2e2;color:#b91c1c;border-color:#f87171;">Derecha</button>
+            </div>
+        </div>
+
+        <!-- SECCIÓN: Blindspot (Ground News Style) -->
+        <div id="blindspot" class="mb-10 sm:mb-12 bg-white dark:bg-slate-800/40 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 p-5 sm:p-7 shadow-sm scroll-mt-28">
+            <div class="flex items-center space-x-3 mb-5">
+                <div class="h-9 w-9 rounded-full bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                    <i class="ph ph-eye-slash text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-900 dark:text-white text-sm sm:text-base">Blindspot — Puntos Ciegos</h3>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Perspectivas políticas con menor representación en el directorio</p>
+                </div>
+            </div>
+            <div id="blindspot-content" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <!-- JS lo llena con los datos dinámicos -->
+                <div class="col-span-full py-6 text-center text-sm text-slate-400">
+                    <span class="blindspot-dot inline-block h-2 w-2 rounded-full bg-amber-400 mr-2"></span>
+                    Analizando cobertura del directorio...
+                </div>
+            </div>
         </div>
 
         <!-- SECCIÓN: Medios en Español -->
@@ -717,7 +853,256 @@
 
     <!-- Scripts -->
     <script>
-        // --- Lógica del Modo Oscuro y Panel de Ajustes ---
+        // ============================================================
+        // BASE DE DATOS DE SESGO POLÍTICO Y FACTUALIDAD (Ground News)
+        // ============================================================
+        const sourceBiasDB = {
+            // Español
+            'El País':          { bias: 'center-left',  factuality: 'high',   label: 'Centroizquierda',  factLabel: 'Alta' },
+            'El Mundo':         { bias: 'center-right', factuality: 'high',   label: 'Centroderecha',    factLabel: 'Alta' },
+            'Clarín':           { bias: 'center-right', factuality: 'medium', label: 'Centroderecha',    factLabel: 'Media' },
+            'La Nación':        { bias: 'center-right', factuality: 'high',   label: 'Centroderecha',    factLabel: 'Alta' },
+            'Infobae':          { bias: 'center',       factuality: 'high',   label: 'Centro',           factLabel: 'Alta' },
+            'El Universal':     { bias: 'center',       factuality: 'high',   label: 'Centro',           factLabel: 'Alta' },
+            'Reforma':          { bias: 'center-right', factuality: 'high',   label: 'Centroderecha',    factLabel: 'Alta' },
+            'El Tiempo':        { bias: 'center',       factuality: 'high',   label: 'Centro',           factLabel: 'Alta' },
+            'El Comercio':      { bias: 'center',       factuality: 'high',   label: 'Centro',           factLabel: 'Alta' },
+            'BBC Mundo':        { bias: 'center',       factuality: 'high',   label: 'Centro',           factLabel: 'Alta' },
+            'Xataka':           { bias: 'center',       factuality: 'high',   label: 'Centro',           factLabel: 'Alta' },
+            'Hipertextual':     { bias: 'center',       factuality: 'medium', label: 'Centro',           factLabel: 'Media' },
+            'Genbeta':          { bias: 'center',       factuality: 'high',   label: 'Centro',           factLabel: 'Alta' },
+            'Gizmodo ES':       { bias: 'center',       factuality: 'medium', label: 'Centro',           factLabel: 'Media' },
+            '3DJuegos':         { bias: 'center',       factuality: 'medium', label: 'Centro',           factLabel: 'Media' },
+            'CNN Español':      { bias: 'center',       factuality: 'high',   label: 'Centro',           factLabel: 'Alta' },
+            'RTVE':             { bias: 'center-left',  factuality: 'high',   label: 'Centroizquierda',  factLabel: 'Alta' },
+            'La Vanguardia':    { bias: 'center-left',  factuality: 'high',   label: 'Centroizquierda',  factLabel: 'Alta' },
+            'El Español':       { bias: 'center',       factuality: 'medium', label: 'Centro',           factLabel: 'Media' },
+            'ABC':              { bias: 'center-right', factuality: 'high',   label: 'Centroderecha',    factLabel: 'Alta' },
+            // Inglés
+            'The New York Times': { bias: 'center-left',  factuality: 'high',   label: 'Centroizquierda',  factLabel: 'Alta' },
+            'Washington Post':    { bias: 'center-left',  factuality: 'high',   label: 'Centroizquierda',  factLabel: 'Alta' },
+            'The Guardian':       { bias: 'center-left',  factuality: 'high',   label: 'Centroizquierda',  factLabel: 'Alta' },
+            'BBC News':           { bias: 'center',       factuality: 'high',   label: 'Centro',           factLabel: 'Alta' },
+            'Wall Street Journal':{ bias: 'center-right', factuality: 'high',   label: 'Centroderecha',    factLabel: 'Alta' },
+            'Reuters':            { bias: 'center',       factuality: 'high',   label: 'Centro',           factLabel: 'Alta' },
+            'Associated Press':   { bias: 'center',       factuality: 'high',   label: 'Centro',           factLabel: 'Alta' },
+            'Al Jazeera':         { bias: 'center',       factuality: 'high',   label: 'Centro',           factLabel: 'Alta' },
+            'The Times':          { bias: 'center-right', factuality: 'high',   label: 'Centroderecha',    factLabel: 'Alta' },
+            'CNN Intl.':          { bias: 'center',       factuality: 'high',   label: 'Centro',           factLabel: 'Alta' },
+            'TechCrunch':         { bias: 'center',       factuality: 'high',   label: 'Centro',           factLabel: 'Alta' },
+            'The Verge':          { bias: 'center',       factuality: 'medium', label: 'Centro',           factLabel: 'Media' },
+            'Wired':              { bias: 'center',       factuality: 'high',   label: 'Centro',           factLabel: 'Alta' },
+            'Engadget':           { bias: 'center',       factuality: 'medium', label: 'Centro',           factLabel: 'Media' },
+            'Ars Technica':       { bias: 'center',       factuality: 'high',   label: 'Centro',           factLabel: 'Alta' },
+            'Bloomberg':          { bias: 'center',       factuality: 'high',   label: 'Centro',           factLabel: 'Alta' },
+            'Forbes':             { bias: 'center',       factuality: 'medium', label: 'Centro',           factLabel: 'Media' },
+            'CNBC':               { bias: 'center',       factuality: 'high',   label: 'Centro',           factLabel: 'Alta' },
+            'The Independent':    { bias: 'center',       factuality: 'high',   label: 'Centro',           factLabel: 'Alta' },
+            'Financial Times':    { bias: 'center',       factuality: 'high',   label: 'Centro',           factLabel: 'Alta' },
+        };
+
+        // Normalizar: si bias comienza con 'center' lo agrupamos como 'center' para las barras
+        const biasGroup = (b) => {
+            if (b === 'left' || b === 'center-left') return 'left';
+            if (b === 'right' || b === 'center-right') return 'right';
+            return 'center';
+        };
+
+        // ============================================================
+        // FUNCIÓN: Inyectar badges de sesgo y factualidad en cada tarjeta
+        // ============================================================
+        const injectBiasBadges = () => {
+            const cards = document.querySelectorAll('section a[target="_blank"].group');
+            cards.forEach(card => {
+                const h3 = card.querySelector('h3');
+                if (!h3) return;
+                const name = h3.textContent.trim();
+                const info = sourceBiasDB[name];
+                if (!info) return;
+
+                // Data attributes
+                card.dataset.bias = biasGroup(info.bias);
+                card.dataset.biasDetail = info.bias;
+                card.dataset.factuality = info.factuality;
+
+                // Ya tiene badge? evitar duplicado
+                if (card.querySelector('.bias-badge')) return;
+
+                // Crear contenedor de badges debajo del título
+                const titleRow = card.querySelector('.flex.justify-between.items-start');
+                if (!titleRow) return;
+
+                const badgeWrap = document.createElement('div');
+                badgeWrap.className = 'flex flex-wrap items-center gap-1.5 mt-1.5';
+
+                // Badge de sesgo
+                const biasBadge = document.createElement('span');
+                biasBadge.className = `bias-badge bias-${info.bias}`;
+                const dot = document.createElement('span');
+                dot.className = 'inline-block h-1.5 w-1.5 rounded-full';
+                if (info.bias === 'left' || info.bias === 'center-left') dot.style.background = '#3b82f6';
+                else if (info.bias === 'right' || info.bias === 'center-right') dot.style.background = '#ef4444';
+                else dot.style.background = '#64748b';
+                biasBadge.appendChild(dot);
+                biasBadge.appendChild(document.createTextNode(' ' + info.label));
+
+                // Badge de factualidad
+                const factBadge = document.createElement('span');
+                factBadge.className = `fact-badge fact-${info.factuality}`;
+                factBadge.innerHTML = `<i class="ph ph-shield-check"></i> ${info.factLabel}`;
+
+                badgeWrap.appendChild(biasBadge);
+                badgeWrap.appendChild(factBadge);
+                titleRow.parentNode.insertBefore(badgeWrap, titleRow.nextSibling);
+            });
+        };
+
+        // ============================================================
+        // FUNCIÓN: Actualizar distribución y barras
+        // ============================================================
+        const updateDistribution = (filterBias) => {
+            const allCards = document.querySelectorAll('section a[target="_blank"].group[data-bias]');
+            let left = 0, center = 0, right = 0, total = 0;
+
+            allCards.forEach(card => {
+                const b = card.dataset.bias;
+                // Aplicar filtro visual
+                if (filterBias && filterBias !== 'all') {
+                    if (b === filterBias) {
+                        card.classList.remove('card-hidden');
+                    } else {
+                        card.classList.add('card-hidden');
+                    }
+                } else {
+                    card.classList.remove('card-hidden');
+                }
+
+                if (b === 'left') left++;
+                else if (b === 'right') right++;
+                else center++;
+                total++;
+            });
+
+            // Actualizar números
+            document.getElementById('count-left').textContent = left;
+            document.getElementById('count-center').textContent = center;
+            document.getElementById('count-right').textContent = right;
+            document.getElementById('bias-total').textContent = total + ' fuentes';
+
+            // Actualizar barras
+            const maxVal = Math.max(left, center, right, 1);
+            const pct = (v) => (v / maxVal) * 100;
+            document.getElementById('dist-left').style.width = pct(left) + '%';
+            document.getElementById('dist-left').dataset.count = left;
+            document.getElementById('dist-center').style.width = pct(center) + '%';
+            document.getElementById('dist-center').dataset.count = center;
+            document.getElementById('dist-right').style.width = pct(right) + '%';
+            document.getElementById('dist-right').dataset.count = right;
+
+            // Actualizar Blindspot
+            updateBlindspot(left, center, right, total);
+            updateActiveFilterBtn(filterBias || 'all');
+        };
+
+        // ============================================================
+        // FUNCIÓN: Blindspot — detectar perspectivas infrarrepresentadas
+        // ============================================================
+        const updateBlindspot = (left, center, right, total) => {
+            const container = document.getElementById('blindspot-content');
+            if (!container) return;
+            const pct = (v) => ((v / total) * 100).toFixed(0);
+
+            const segments = [
+                { name: 'Izquierda', count: left, pct: pct(left), color: 'blue', icon: 'ph-arrow-left', desc: '' },
+                { name: 'Centro', count: center, pct: pct(center), color: 'slate', icon: 'ph-minus', desc: '' },
+                { name: 'Derecha', count: right, pct: pct(right), color: 'red', icon: 'ph-arrow-right', desc: '' },
+            ];
+
+            const maxSeg = segments.reduce((a,b) => a.count > b.count ? a : b);
+            segments.forEach(s => {
+                const diff = maxSeg.count - s.count;
+                if (diff === 0) s.desc = `Mayoría · ${s.pct}% de las fuentes`;
+                else if (diff <= 2) s.desc = `Subrepresentado · ${s.pct}% (${diff} menos que ${maxSeg.name})`;
+                else s.desc = `Infrarrepresentado · ${s.pct}% (${diff} menos que ${maxSeg.name})`;
+            });
+
+            const sorted = [...segments].sort((a,b) => a.count - b.count);
+
+            let html = '';
+            sorted.forEach(s => {
+                const isLow = s.count === sorted[0].count && sorted[0].count < sorted[1].count;
+                html += `
+                    <div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200/60 dark:border-slate-700/50 ${isLow ? 'ring-2 ring-amber-400/50' : ''}">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center space-x-2">
+                                <span class="inline-block h-2.5 w-2.5 rounded-full bg-${s.color}-500 ${isLow ? 'blindspot-dot' : ''}"></span>
+                                <span class="text-sm font-bold text-slate-800 dark:text-slate-200">${s.name}</span>
+                            </div>
+                            <span class="text-[10px] font-bold text-slate-400">${s.pct}%</span>
+                        </div>
+                        <div class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden mb-2">
+                            <div class="h-full rounded-full bg-${s.color}-500 transition-all duration-500" style="width:${s.pct}%"></div>
+                        </div>
+                        <p class="text-[10px] font-medium text-slate-500 dark:text-slate-400">${s.desc}</p>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        };
+
+        // ============================================================
+        // FUNCIÓN: Actualizar botón activo del filtro rápido
+        // ============================================================
+        const updateActiveFilterBtn = (bias) => {
+            document.querySelectorAll('.bias-filter-btn').forEach(btn => {
+                const isActive = btn.dataset.bias === bias;
+                btn.style.opacity = isActive ? '1' : '0.5';
+                btn.style.boxShadow = isActive ? '0 0 0 2px rgba(59,130,246,0.5)' : 'none';
+                // Sincronizar radio buttons en settings
+                const radio = document.querySelector(`input[name="bias-filter"][value="${bias}"]`);
+                if (radio) radio.checked = true;
+            });
+            const resetBtn = document.getElementById('reset-bias-filter');
+            if (resetBtn) {
+                resetBtn.classList.toggle('hidden', bias === 'all');
+            }
+        };
+
+        // ============================================================
+        // INICIALIZACIÓN
+        // ============================================================
+        document.addEventListener("DOMContentLoaded", () => {
+            // Inyectar badges en todas las tarjetas
+            injectBiasBadges();
+
+            // Calcular distribución inicial (sin filtro)
+            updateDistribution('all');
+
+            // --- Filtro rápido (botones del dashboard) ---
+            document.querySelectorAll('.bias-filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    updateDistribution(btn.dataset.bias);
+                });
+            });
+
+            // --- Filtro desde settings (radio buttons) ---
+            document.querySelectorAll('input[name="bias-filter"]').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    if (radio.checked) updateDistribution(radio.value);
+                });
+            });
+
+            // --- Botón reset ---
+            const resetBtn = document.getElementById('reset-bias-filter');
+            if (resetBtn) {
+                resetBtn.addEventListener('click', () => updateDistribution('all'));
+            }
+        });
+
+        // ============================================================
+        // LÓGICA EXISTENTE (Modo Oscuro, Panel, Menú, Carga, API)
+        // ============================================================
         const themeToggleBtn = document.getElementById('theme-toggle');
         const themeToggleDot = document.getElementById('theme-toggle-dot');
         const themeIcon = document.getElementById('theme-icon');
@@ -727,7 +1112,6 @@
         const settingsPanel = document.getElementById('settings-panel');
         const settingsOverlay = document.getElementById('settings-overlay');
 
-        // Función para actualizar UI del switch según el tema actual
         const updateThemeUI = () => {
             if (document.documentElement.classList.contains('dark')) {
                 themeToggleDot.classList.add('translate-x-6');
@@ -744,10 +1128,8 @@
             }
         };
 
-        // Inicializar UI al cargar
         updateThemeUI();
 
-        // Cambiar tema al hacer clic en el switch
         themeToggleBtn.addEventListener('click', () => {
             if (document.documentElement.classList.contains('dark')) {
                 document.documentElement.classList.remove('dark');
@@ -759,7 +1141,6 @@
             updateThemeUI();
         });
 
-        // Abrir y cerrar el panel de ajustes
         const toggleSettings = () => {
             const isClosed = settingsPanel.classList.contains('translate-x-full');
             if (isClosed) {
@@ -775,8 +1156,6 @@
         closeSettingsBtn.addEventListener('click', toggleSettings);
         settingsOverlay.addEventListener('click', toggleSettings);
 
-
-        // --- Lógica para el Menú Móvil ---
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
         const mobileLinks = document.querySelectorAll('.mobile-link');
@@ -785,14 +1164,12 @@
             mobileMenu.classList.toggle('hidden');
         });
 
-        // Ocultar menú al hacer click en un enlace
         mobileLinks.forEach(link => {
             link.addEventListener('click', () => {
                 mobileMenu.classList.add('hidden');
             });
         });
 
-        // --- Lógica de la Pantalla de Carga ---
         window.addEventListener('load', () => {
             setTimeout(() => {
                 const loader = document.getElementById('loading-screen');
@@ -801,11 +1178,9 @@
             }, 1800);
         });
 
-        // --- Lógica de Obtención de Noticias (API) ---
+        // --- API de noticias (sin cambios) ---
         document.addEventListener("DOMContentLoaded", () => {
             const tickerContainer = document.getElementById('news-ticker');
-            
-            // Feed cambiado a noticias de último momento de Argentina (Clarín)
             const rssUrl = 'https://www.clarin.com/rss/lo-ultimo/';
             const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
 
@@ -827,7 +1202,6 @@
                 })
                 .catch(error => console.error('Error:', error));
 
-            // Función para cargar noticias visuales con soporte para modo oscuro
             const cargarNoticiasGrid = (rssUrl, containerId, accentColor) => {
                 const apiGridUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
                 
@@ -871,7 +1245,6 @@
                     });
             };
 
-            // Ejecutamos las llamadas con retraso escalonado
             setTimeout(() => { cargarNoticiasGrid('https://e00-elmundo.uecdn.es/elmundo/rss/portada.xml', 'grid-noticias-es', 'blue'); }, 600);
             setTimeout(() => { cargarNoticiasGrid('https://hipertextual.com/feed', 'grid-noticias-es-tech', 'cyan'); }, 1200);
             setTimeout(() => { cargarNoticiasGrid('http://feeds.bbci.co.uk/news/world/rss.xml', 'grid-noticias-en', 'indigo'); }, 1800);
