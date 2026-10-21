@@ -1,9 +1,9 @@
 /* ============================================================
    ECNEWS · EN VIVO
-   Tarjetas de canales en vivo (click-to-play): el reproductor
-   YouTube solo se incrusta al hacer clic, así la página nunca
-   muestra pantallas de error si un canal no está emitiendo.
-   Siempre hay un enlace directo "Ver en YouTube" como respaldo.
+   Tarjetas con enlace directo a YouTube Live (sin iframe incrustado).
+   Siempre hay un enlace "Ver en YouTube" que abre la señal en
+   una nueva pestaña; así no hay pantallas de error ni carga
+   de reproductores que puedan bloquearse por CORS/ORIGIN.
    ============================================================ */
 
 // ============================================================
@@ -70,25 +70,21 @@ const renderLiveTicker = () => {
 };
 
 // ============================================================
-// TARJETA DE CANAL (click-to-play)
+// TARJETA DE CANAL (enlace directo a YouTube)
 // ============================================================
-const renderLiveCard = (ch, idx) => {
-    const origin = window.location.origin;
-    const embed = `https://www.youtube.com/embed/live_stream?channel=${ch.channelId}&autoplay=1&mute=1&playsinline=1&origin=${encodeURIComponent(origin)}`;
-    const channelUrl = `https://www.youtube.com/channel/${ch.channelId}/live`;
+const renderLiveCard = (ch) => {
+    const liveUrl = `https://www.youtube.com/channel/${ch.channelId}/live`;
 
     return `
-        <article class="live-card flex flex-col bg-white dark:bg-slate-800/50 rounded-2xl overflow-hidden border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_10px_35px_rgb(0,0,0,0.1)] dark:hover:shadow-[0_10px_35px_rgb(0,0,0,0.4)] transition-all duration-300 group hover:-translate-y-1" style="animation: fadeInUp 0.4s ease ${idx * 0.06}s both;">
-            <!-- Poster (se reemplaza por el reproductor al hacer clic) -->
-            <div class="live-poster relative aspect-video bg-gradient-to-b from-slate-900 to-black flex items-center justify-center overflow-hidden cursor-pointer select-none" data-embed="${embed}" role="button" tabindex="0" aria-label="Reproducir ${ch.name}">
-                <div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all"></div>
-                <span class="live-badge absolute top-2.5 left-2.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-600/90 text-white text-[9px] font-bold uppercase tracking-widest shadow-lg backdrop-blur-sm z-10">
+        <article class="live-card flex flex-col bg-white dark:bg-slate-800/50 rounded-2xl overflow-hidden border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_10px_35px_rgb(0,0,0,0.1)] dark:hover:shadow-[0_10px_35px_rgb(0,0,0,0.4)] transition-all duration-300">
+            <div class="relative h-48 sm:h-56 bg-gradient-to-b from-slate-900 to-black flex items-center justify-center overflow-hidden">
+                <span class="live-badge absolute top-2.5 left-2.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-600/90 text-white text-[9px] font-bold uppercase tracking-widest shadow-lg backdrop-blur-sm">
                     <span class="live-dot"></span> En Vivo
                 </span>
-                <div class="relative z-10 flex flex-col items-center text-white pointer-events-none">
+                <div class="relative z-10 text-white">
                     <i class="ph ph-play-circle text-5xl text-red-500 mb-3"></i>
                     <h3 class="text-lg font-bold sm:text-xl leading-snug">${ch.name}</h3>
-                    <p class="text-sm text-slate-300 mt-1 max-w-xs px-2 text-center">Haz clic para reproducir</p>
+                    <p class="text-sm text-slate-300 mt-1">Haz clic para ver en YouTube</p>
                 </div>
             </div>
             <div class="p-4 flex flex-col">
@@ -102,7 +98,7 @@ const renderLiveCard = (ch, idx) => {
                     <span class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
                         <i class="ph ph-globe-hemisphere-west mr-1"></i>${ch.country}
                     </span>
-                    <a href="${channelUrl}" target="_blank" rel="noopener noreferrer"
+                    <a href="${liveUrl}" target="_blank" rel="noopener noreferrer"
                        class="inline-flex items-center text-[9px] sm:text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:underline uppercase tracking-wider">
                         Ver en YouTube <i class="ph ph-arrow-up-right ml-1"></i>
                     </a>
@@ -119,37 +115,16 @@ const loadLiveGrid = (containerId, countId, channels) => {
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    container.innerHTML = channels.map((ch, idx) => renderLiveCard(ch, idx)).join('');
+    container.innerHTML = channels.map(renderLiveCard).join('');
 
     const countEl = document.getElementById(countId);
     if (countEl) countEl.textContent = channels.length + ' Canales';
-
-    // Click-to-play: carga el reproductor YouTube solo al hacer clic
-    container.querySelectorAll('.live-poster').forEach(poster => {
-        const activate = () => {
-            if (poster.dataset.active === '1') return;
-            poster.dataset.active = '1';
-            const embed = poster.dataset.embed;
-            if (!embed) return;
-            poster.innerHTML = `
-                <iframe src="${embed}" title="En directo" loading="lazy"
-                        class="absolute inset-0 w-full h-full"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowfullscreen frameborder="0"></iframe>`;
-        };
-        poster.addEventListener('click', activate);
-        poster.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); } });
-    });
 };
 
 // ============================================================
 // INICIALIZACIÓN
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
-    setupLiveTheme();
-    setupLiveMobileMenu();
-    renderLiveTicker();
-
     if (typeof LIVE_CONFIG !== 'undefined') {
         loadLiveGrid('grid-envivo-es', 'live-es-count', LIVE_CONFIG.es);
         loadLiveGrid('grid-envivo-en', 'live-en-count', LIVE_CONFIG.en);
