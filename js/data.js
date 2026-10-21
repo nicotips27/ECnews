@@ -233,28 +233,27 @@ const RSS_CONFIG = {
 
 // ============================================================
 // CONFIGURACIÓN DE TRANSMISIONES EN VIVO (YouTube Live)
-// Cada entrada embebe el stream en vivo actual del canal con
-// youtube.com/embed/live_stream?channel=<channelId>. Si el canal
-// no está emitiendo, el reproductor muestra aviso y el botón
-// "Abrir en YouTube" redirige al canal.
+// Cada entrada apunta al canal de YouTube Live. El reproductor se carga al hacer clic
+// (click-to-play) para evitar mostrar pantallas de error si un canal no está emitiendo.
+// Siempre se incluye el enlace directo "Ver en YouTube" como respaldo.
 // ============================================================
 const LIVE_CONFIG = {
     es: [
         { name: 'RTVE Noticias · 24H', channelId: 'UC7QZIf0dta-XPXsp9Hv4dTw', accent: 'blue',   bias: 'center', country: 'España' },
+        { name: 'Agencia EFE',         channelId: 'UCvJS-YNyaWyOucx8bGrHVvw', accent: 'blue',   bias: 'center', country: 'España' },
         { name: 'CNN en Español',      channelId: 'UC_lEiu6917IJz03TnntWUaQ', accent: 'blue',   bias: 'center', country: 'Global' },
         { name: 'DW Español',          channelId: 'UCT4Jg8h03dD0iN3Pb5L0PMA', accent: 'blue',   bias: 'center', country: 'Alemania' },
-        { name: 'Agencia EFE',         channelId: 'UCvJS-YNyaWyOucx8bGrHVvw', accent: 'blue',   bias: 'center', country: 'España' },
         { name: 'FRANCE 24 Español',   channelId: 'UCUdOoVWuWmgo1wByzcsyKDQ', accent: 'blue',   bias: 'center', country: 'Francia' },
         { name: 'teleSUR En Vivo',     channelId: 'UCZSdNK_ZmMQcLTz-obKr-Dw', accent: 'blue',   bias: 'left',   country: 'Venezuela' },
     ],
     en: [
         { name: 'BBC News',            channelId: 'UC16niRr50-MSBwiO3YDb3RA', accent: 'indigo', bias: 'center', country: 'Reino Unido' },
         { name: 'Sky News',            channelId: 'UCoMdktPbSTixAyNGwb-UYkQ', accent: 'indigo', bias: 'center', country: 'Reino Unido' },
+        { name: 'CNN',                 channelId: 'UCupvZG-5ko_eiXAupbDfxWw', accent: 'indigo', bias: 'center', country: 'EE. UU.' },
+        { name: 'DW News',             channelId: 'UCknLrEdhRCp1aegoMqRaCZg', accent: 'indigo', bias: 'center', country: 'Alemania' },
         { name: 'Al Jazeera English',  channelId: 'UCNye-wNBqNL5ZzHSJj3l8Bg', accent: 'indigo', bias: 'center', country: 'Catar' },
         { name: 'France 24 English',   channelId: 'UCQfwfsi5VrQ8yKZ-UWmAEFg', accent: 'indigo', bias: 'center', country: 'Francia' },
-        { name: 'DW News',             channelId: 'UCknLrEdhRCp1aegoMqRaCZg', accent: 'indigo', bias: 'center', country: 'Alemania' },
         { name: 'Bloomberg Television',channelId: 'UCIALMKvObZNtJ6AmdCLP7Lg', accent: 'indigo', bias: 'center', country: 'EE. UU.' },
-        { name: 'CNN',                 channelId: 'UCupvZG-5ko_eiXAupbDfxWw', accent: 'indigo', bias: 'center', country: 'EE. UU.' },
         { name: 'teleSUR English',     channelId: 'UCmuTmpLY35O3csvhyA6vrkg', accent: 'indigo', bias: 'left',   country: 'Venezuela' },
     ],
 };
