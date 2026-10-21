@@ -1,9 +1,7 @@
 /* ============================================================
    ECNEWS · EN VIVO
-   Tarjetas con enlace directo a YouTube Live (sin iframe incrustado).
-   Siempre hay un enlace "Ver en YouTube" que abre la señal en
-   una nueva pestaña; así no hay pantallas de error ni carga
-   de reproductores que puedan bloquearse por CORS/ORIGIN.
+   Render de transmisiones en vivo (YouTube Live) en las
+   secciones Español / English, tema oscuro, ticker y menú móvil.
    ============================================================ */
 
 // ============================================================
@@ -70,21 +68,21 @@ const renderLiveTicker = () => {
 };
 
 // ============================================================
-// TARJETA DE CANAL (enlace directo a YouTube)
+// TARJETA DE TRANSMISIÓN EN VIVO
 // ============================================================
-const renderLiveCard = (ch) => {
-    const liveUrl = `https://www.youtube.com/channel/${ch.channelId}/live`;
+const renderLiveCard = (ch, idx) => {
+    const embed = `https://www.youtube.com/embed/live_stream?channel=${ch.channelId}&autoplay=1&mute=1&playsinline=1`;
+    const channelUrl = `https://www.youtube.com/channel/${ch.channelId}/live`;
 
     return `
-        <article class="live-card flex flex-col bg-white dark:bg-slate-800/50 rounded-2xl overflow-hidden border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_10px_35px_rgb(0,0,0,0.1)] dark:hover:shadow-[0_10px_35px_rgb(0,0,0,0.4)] transition-all duration-300">
-            <div class="relative h-48 sm:h-56 bg-gradient-to-b from-slate-900 to-black flex items-center justify-center overflow-hidden">
-                <span class="live-badge absolute top-2.5 left-2.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-600/90 text-white text-[9px] font-bold uppercase tracking-widest shadow-lg backdrop-blur-sm">
+        <article class="live-card flex flex-col bg-white dark:bg-slate-800/50 rounded-2xl overflow-hidden border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_10px_35px_rgb(0,0,0,0.1)] dark:hover:shadow-[0_10px_35px_rgb(0,0,0,0.4)] transition-all duration-300 group hover:-translate-y-1" style="animation: fadeInUp 0.4s ease ${idx * 0.06}s both;">
+            <div class="relative aspect-video bg-black overflow-hidden">
+                <iframe src="${embed}" title="${ch.name}" loading="lazy"
+                        class="absolute inset-0 w-full h-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowfullscreen frameborder="0"></iframe>
+                <div class="live-badge absolute top-2.5 left-2.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-600/90 text-white text-[9px] font-bold uppercase tracking-widest shadow-lg backdrop-blur-sm">
                     <span class="live-dot"></span> En Vivo
-                </span>
-                <div class="relative z-10 text-white">
-                    <i class="ph ph-play-circle text-5xl text-red-500 mb-3"></i>
-                    <h3 class="text-lg font-bold sm:text-xl leading-snug">${ch.name}</h3>
-                    <p class="text-sm text-slate-300 mt-1">Haz clic para ver en YouTube</p>
                 </div>
             </div>
             <div class="p-4 flex flex-col">
@@ -98,9 +96,9 @@ const renderLiveCard = (ch) => {
                     <span class="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
                         <i class="ph ph-globe-hemisphere-west mr-1"></i>${ch.country}
                     </span>
-                    <a href="${liveUrl}" target="_blank" rel="noopener noreferrer"
+                    <a href="${channelUrl}" target="_blank" rel="noopener noreferrer"
                        class="inline-flex items-center text-[9px] sm:text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:underline uppercase tracking-wider">
-                        Ver en YouTube <i class="ph ph-arrow-up-right ml-1"></i>
+                        Abrir en YouTube <i class="ph ph-arrow-up-right ml-1"></i>
                     </a>
                 </div>
             </div>
@@ -115,7 +113,7 @@ const loadLiveGrid = (containerId, countId, channels) => {
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    container.innerHTML = channels.map(renderLiveCard).join('');
+    container.innerHTML = channels.map((ch, idx) => renderLiveCard(ch, idx)).join('');
 
     const countEl = document.getElementById(countId);
     if (countEl) countEl.textContent = channels.length + ' Canales';
@@ -125,6 +123,10 @@ const loadLiveGrid = (containerId, countId, channels) => {
 // INICIALIZACIÓN
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
+    setupLiveTheme();
+    setupLiveMobileMenu();
+    renderLiveTicker();
+
     if (typeof LIVE_CONFIG !== 'undefined') {
         loadLiveGrid('grid-envivo-es', 'live-es-count', LIVE_CONFIG.es);
         loadLiveGrid('grid-envivo-en', 'live-en-count', LIVE_CONFIG.en);

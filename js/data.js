@@ -233,9 +233,10 @@ const RSS_CONFIG = {
 
 // ============================================================
 // CONFIGURACIÓN DE TRANSMISIONES EN VIVO (YouTube Live)
-// Cada entrada apunta al canal de YouTube Live. Se muestra un enlace directo
-// "Ver en YouTube" que abre el live stream en una nueva pestaña; así no hay
-// pantallas de error incrustadas y el usuario siempre puede ver la señal.
+// Cada entrada embebe el stream en vivo actual del canal con
+// youtube.com/embed/live_stream?channel=<channelId>. Si el canal
+// no está emitiendo, el reproductor muestra aviso y el botón
+// "Abrir en YouTube" redirige al canal.
 // ============================================================
 const LIVE_CONFIG = {
     es: [
