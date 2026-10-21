@@ -1,5 +1,16 @@
 # Registro de cambios
 
+## 1.1.0 (2026-10-21)
+
+**En Vivo: subpágina de transmisiones**
+
+- Nueva subpágina `envivo.html` con señales 24 horas en **español** e **inglés**, embebidas desde YouTube Live.
+- Secciones "En Español" (RTVE Noticias 24H, CNN en Español, DW Español, Agencia EFE, FRANCE 24 Español, teleSUR) y "In English" (BBC News, Sky News, Al Jazeera English, France 24 English, DW News, Bloomberg Television, CNN, teleSUR English).
+- Cada tarjeta muestra reproductor 16:9, badge de **En Vivo**, sesgo político del medio y botón "Abrir en YouTube" como respaldo.
+- Ticker superior con los canales en vivo y navegación al canal.
+- Tema oscuro compartido con el portal (misma clave `color-theme`).
+- Enlace "En Vivo" añadido al header, menú móvil y footer del portal.
+
 ## 1.0.0 (2026-09-13)
 
 **Filtro por sesgo en noticias**

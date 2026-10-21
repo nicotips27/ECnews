@@ -2,6 +2,7 @@ module.exports = {
     darkMode: 'class',
     content: [
         './index.html',
+        './envivo.html',
         './js/**/*.js',
     ],
     theme: {

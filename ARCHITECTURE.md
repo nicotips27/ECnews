@@ -4,12 +4,19 @@ Visión técnica de ECNEWS: componentes, flujo de datos y el pipeline del filtro
 
 ## Visión general
 
-ECNEWS es un sitio estático servido por GitHub Pages. No hay servidor ni build en producción: todo el contenido se genera en el navegador desde tres ficheros JS que se cargan en orden en `index.html`:
+ECNEWS es un sitio estático servido por GitHub Pages. No hay servidor ni build en producción: todo el contenido se genera en el navegador desde ficheros JS que se cargan en orden en cada página.
 
+`index.html` (portal principal):
 ```html
 <script src="js/data.js"></script>
 <script src="js/main.js"></script>
 <script src="js/feeds.js"></script>
+```
+
+`envivo.html` (subpágina de transmisiones en vivo):
+```html
+<script src="js/data.js"></script>
+<script src="js/envivo.js"></script>
 ```
 
 ```
@@ -30,9 +37,11 @@ ECNEWS es un sitio estático servido por GitHub Pages. No hay servidor ni build 
 
 | Fichero | Responsabilidad | Salidas al DOM |
 | --- | --- | --- |
-| `js/data.js` | Fuente única de datos. `mediaSources` (directorio) + `RSS_CONFIG` (feeds) + utilidades de sesgo (`biasGroup`, `biasLabelMap`, `factLabelMap`) + mapas de clases Tailwind (`ACCENT_CLASSES`, `SEGMENT_CLASSES`, `CARD_META`) | — |
+| `js/data.js` | Fuente única de datos. `mediaSources` (directorio) + `RSS_CONFIG` (feeds) + `LIVE_CONFIG` (transmisiones en vivo) + utilidades de sesgo (`biasGroup`, `biasLabelMap`, `factLabelMap`) + mapas de clases Tailwind (`ACCENT_CLASSES`, `SEGMENT_CLASSES`, `CARD_META`) | — |
 | `js/main.js` | Construye del directorio (`buildMediaGrids` → `buildMediaCard`), dashboard y blindspot (`updateDistribution`, `updateBlindspot`), tema oscuro, panel de ajustes, menú móvil, y el pipeline del filtro (`applyBiasFilter`, `refreshGridCounts`) | Tarjetas `.directory-card`, barras, contadores, blindspot |
 | `js/feeds.js` | Rutinas RSS con caché (`fetchRSS`), ticker (`loadTicker`), hero (`loadFeatured`), grids (`loadGrid` → `renderCard`), espectro (`loadEspectro`, `renderColumn`) y transparencia (`renderOwnership`). Orquestado por `initFeeds()` | Ticker, hero, `.feed-card`, columnas de espectro, propiedad |
+| `envivo.html` | Subpágina de transmisiones en vivo. Header compacto, ticker de canales y dos grids (`#grid-envivo-es`, `#grid-envivo-en`) | Tarjetas `.live-card` con iframe de YouTube Live |
+| `js/envivo.js` | Render de `LIVE_CONFIG` (`renderLiveCard`, `loadLiveGrid`), ticker (`renderLiveTicker`), tema oscuro y menú móvil propios | `.live-card`, ticker `#live-ticker` |
 
 El estado global `currentBiasFilter` se comparte entre ambos ficheros (ambos se declaran en el ámbito global del script).
 
@@ -71,6 +80,15 @@ Hallazgos clave:
 - El estado se restaura al cargar (`DOMContentLoaded`) leyendo `sessionStorage`; los valores inválidos caen a `all`.
 - Hero, ticker y espectro no se filtran porque representan el conjunto completo.
 
+## Página En Vivo (`envivo.html`)
+
+1. `DOMContentLoaded` en `js/envivo.js` inicializa tema, menú móvil y ticker.
+2. `loadLiveGrid` pinta las tarjetas de `LIVE_CONFIG.es` y `LIVE_CONFIG.en`.
+3. Cada tarjeta embebe `https://www.youtube.com/embed/live_stream?channel=<channelId>&autoplay=1&mute=1&playsinline=1`. YouTube resuelve el stream en vivo actual; si el canal no está emitiendo, el iframe muestra aviso y el botón "Abrir en YouTube" redirige al canal.
+4. El tema usa la misma clave `color-theme` de `index.html`, así que la preferencia se comparte entre páginas.
+
+No hay caché ni estado adicional: la página es completamente estática.
+
 ## Caché y almacenamiento
 
 | Capa | Clave | Caducidad | Propósito |
@@ -85,7 +103,7 @@ Hallazgos clave:
 
 ## Despliegue estático
 
-GitHub Pages sirve el repo tal cual. Por eso `styles.css` (compilado con Tailwind) se commitea: el sitio no ejecuta builds. El CSS manual vive en `css/custom.css` (ticker, badges, barras, `.card-hidden`).
+GitHub Pages sirve el repo tal cual. Por eso `styles.css` (compilado con Tailwind) se commitea: el sitio no ejecuta builds. El CSS manual vive en `css/custom.css` (ticker, badges, barras, `.card-hidden`, `.live-dot`). `tailwind.config.js` escanea `index.html`, `envivo.html` y `js/**/*.js`, así que las clases nuevas de la página en vivo se compilan al reconstruir el CSS.
 
 ## Definiciones de datos
 

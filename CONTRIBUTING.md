@@ -62,6 +62,22 @@ Edita `js/data.js` → `RSS_CONFIG`. Estructura de un grid:
 
 Guarda siempre los tres valores de sesgo representados (`left`, `center`, `right`) en las secciones políticas. Purezas técnicas van con `center`.
 
+## Añadir un canal en vivo
+
+Edita `js/data.js` → `LIVE_CONFIG` (dentro de `es` o `en`). Cada entrada:
+
+```js
+{ name: 'BBC News', channelId: 'UC16niRr50-MSBwiO3YDb3RA', accent: 'indigo', bias: 'center', country: 'Reino Unido' },
+```
+
+- `channelId`: ID público de YouTube (la cadena `UC…`), no el `@handle`.
+- `accent`: `blue` para la sección en español, `indigo` para la de inglés.
+- `bias`: valor del catálogo (`left`, `center`, `right`); alimenta el badge de la tarjeta.
+
+El reproductor usa `youtube.com/embed/live_stream?channel=<channelId>`. Si un
+canal no está emitiendo en ese momento, el iframe muestra aviso y el botón
+"Abrir en YouTube" sigue disponible. No olvides recompilar el CSS (`npm run build:css`) tras tocar HTML/JS.
+
 ## Cambiar el filtro por sesgo
 
 La lógica vive en `js/main.js`: `applyBiasFilter`, `refreshGridCounts` y `updateDistribution`. Reglas a respetar:

@@ -13,6 +13,7 @@ Publicado en GitHub Pages: `https://nicotips27.github.io/ECnews/`
 - **Feed visual en vivo** con grids multi-fuente equilibrados por sesgo: Español, English, Tecnología ES/EN, Ciencia y Economía.
 - **Ticker** de última hora y **hero** con la noticia destacada del momento.
 - **A Través del Espectro**: la misma cobertura vista desde Izquierda, Centro y Derecha.
+- **En Vivo**: subpágina (`envivo.html`) con transmisiones 24 horas de medios internacionales en **español** e **inglés**, embebidas desde YouTube Live.
 - **Transparencia**: panel de propiedad de los medios agrupados por propietario.
 - **Panel de ajustes** (offcanvas): modo oscuro y filtro de sesgo persistente.
 - **Menú desplegable de apps** de Estalingrado Corp (Buscador, Download, Market, SendPro, Monitor Big Data).
@@ -29,6 +30,7 @@ Publicado en GitHub Pages: `https://nicotips27.github.io/ECnews/`
 | Feed Visual | Hero destacado + 6 grids de noticias RSS con contadores |
 | A Través del Espectro | Cobertura comparada por sesgo |
 | Transparencia | Propietarios de los medios |
+| En Vivo | Señales en directo (ES/EN) embebidas desde YouTube Live |
 | Ajustes | Modo oscuro + filtro por sesgo |
 
 ## Filtro por sesgo
@@ -52,12 +54,14 @@ El hero, el ticker y "A Través del Espectro" no se filtran, porque representan 
 ```
 ECnews/
 ├── index.html            # HTML (estructura + metadatos SEO)
+├── envivo.html           # Subpágina de transmisiones en vivo (ES/EN)
 ├── styles.css            # CSS compilado de Tailwind (commiteado para GitHub Pages)
-├── css/custom.css        # CSS manual (ticker, badges, barras, animaciones)
+├── css/custom.css        # CSS manual (ticker, badges, barras, animaciones, en vivo)
 ├── js/
-│   ├── data.js           # Fuente única de datos: 50 medios + config RSS
+│   ├── data.js           # Fuente única de datos: 50 medios + config RSS + LIVE_CONFIG
 │   ├── main.js           # Directorio, tema, settings, filtros, blindspot
-│   └── feeds.js          # Ticker, hero, grids RSS, espectro, transparencia
+│   ├── feeds.js          # Ticker, hero, grids RSS, espectro, transparencia
+│   └── envivo.js         # Render de transmisiones en vivo, tema y menú
 ├── assets/favicon.png    # Favicon local
 ├── src/tailwind.css      # Punto de entrada del build de Tailwind
 ├── tailwind.config.js    # darkMode: 'class'
@@ -98,6 +102,24 @@ Los feeds se cargan vía `api.rss2json.com` con caché de 10 minutos en `session
 
 Espectro: Izquierda → The Guardian · Centro → BBC, Xataka · Derecha → El Mundo, ABC.
 
+## Transmisiones en Vivo (js/data.js → LIVE_CONFIG)
+
+La subpágina `envivo.html` embebe el stream en vivo actual de cada canal con
+`https://www.youtube.com/embed/live_stream?channel=<channelId>`. Los canales se
+agrupan en `LIVE_CONFIG.es` y `LIVE_CONFIG.en`.
+
+| Idioma | Canales |
+| --- | --- |
+| Español | RTVE Noticias 24H · CNN en Español · DW Español · Agencia EFE · FRANCE 24 Español · teleSUR En Vivo |
+| English | BBC News · Sky News · Al Jazeera English · France 24 English · DW News · Bloomberg Television · CNN · teleSUR English |
+
+Cada tarjeta muestra el reproductor 16:9, un badge de **En Vivo**, el sesgo
+político del medio y un botón "Abrir en YouTube" como respaldo (útil si un canal
+no está emitiendo, p. ej. CNN, que solo transmite durante eventos).
+
+> Los `channelId` son los IDs públicos de YouTube. Pueden cambiar si el canal se
+> recrea; si un reproductor queda vacío, actualiza el ID en `LIVE_CONFIG`.
+
 ## Guardar y desarrollar
 
 > **Importante:** `styles.css` se commitea al repositorio. GitHub Pages es estático y no ejecuta builds, así que el CSS compilado debe estar versionado.
@@ -112,7 +134,7 @@ npm run watch:css    # modo watch durante el desarrollo
 ## Verificación
 
 ```bash
-node --check js/data.js js/main.js js/feeds.js   # sintaxis JS
+node --check js/data.js js/main.js js/feeds.js js/envivo.js   # sintaxis JS
 npm run build:css                                # compila CSS sin errores
 ```
 
