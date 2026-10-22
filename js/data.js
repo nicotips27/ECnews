@@ -237,12 +237,14 @@ const RSS_CONFIG = {
 // youtube.com/embed/live_stream?channel=<channelId>. Si el canal
 // no está emitiendo, el reproductor muestra aviso y el botón
 // "Abrir en YouTube" redirige al canal.
+// Alternativa: usar `videoId` con un ID de video concreto en lugar
+// de `channelId` (embed directo a ese video en vivo).
 // ============================================================
 const LIVE_CONFIG = {
     es: [
-        { name: 'RTVE Noticias · 24H', channelId: 'UC7QZIf0dta-XPXsp9Hv4dTw', accent: 'blue',   bias: 'center', country: 'España' },
+        { name: 'TN · Todo Noticias',  videoId: 'cb12KmMMDJA', accent: 'blue',   bias: 'center', country: 'Argentina' },
         { name: 'CNN en Español',      channelId: 'UC_lEiu6917IJz03TnntWUaQ', accent: 'blue',   bias: 'center', country: 'Global' },
-        { name: 'DW Español',          channelId: 'UCT4Jg8h03dD0iN3Pb5L0PMA', accent: 'blue',   bias: 'center', country: 'Alemania' },
+        { name: 'DW Español',          channelId: 'UCT4Jg8h03dD0iN3Pb5L0PMA', accent: 'blue',   bias: 'center', country: ' Alemania' },
         { name: 'Agencia EFE',         channelId: 'UCvJS-YNyaWyOucx8bGrHVvw', accent: 'blue',   bias: 'center', country: 'España' },
         { name: 'FRANCE 24 Español',   channelId: 'UCUdOoVWuWmgo1wByzcsyKDQ', accent: 'blue',   bias: 'center', country: 'Francia' },
         { name: 'teleSUR En Vivo',     channelId: 'UCZSdNK_ZmMQcLTz-obKr-Dw', accent: 'blue',   bias: 'left',   country: 'Venezuela' },

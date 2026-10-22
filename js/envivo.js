@@ -59,7 +59,7 @@ const renderLiveTicker = () => {
 
     const channels = [...LIVE_CONFIG.es, ...LIVE_CONFIG.en];
     container.innerHTML = channels.map(ch => `
-        <a href="https://www.youtube.com/channel/${ch.channelId}/live" target="_blank" rel="noopener noreferrer"
+        <a href="${liveTargetUrl(ch)}" target="_blank" rel="noopener noreferrer"
            class="inline-flex items-center px-4 sm:px-6 hover:text-white transition-colors duration-200">
             <span class="text-red-500 mr-2 text-lg leading-none">•</span>
             <span class="tracking-wide">${ch.name}</span>
@@ -70,9 +70,19 @@ const renderLiveTicker = () => {
 // ============================================================
 // TARJETA DE TRANSMISIÓN EN VIVO
 // ============================================================
+// Una entrada puede apuntar a un canal (channelId) o a un video
+// concreto en vivo (videoId). Ambas formas son compatibles.
+const liveEmbedUrl = (ch) => ch.videoId
+    ? `https://www.youtube.com/embed/${ch.videoId}?autoplay=1&mute=1&playsinline=1`
+    : `https://www.youtube.com/embed/live_stream?channel=${ch.channelId}&autoplay=1&mute=1&playsinline=1`;
+
+const liveTargetUrl = (ch) => ch.videoId
+    ? `https://www.youtube.com/watch?v=${ch.videoId}`
+    : `https://www.youtube.com/channel/${ch.channelId}/live`;
+
 const renderLiveCard = (ch, idx) => {
-    const embed = `https://www.youtube.com/embed/live_stream?channel=${ch.channelId}&autoplay=1&mute=1&playsinline=1`;
-    const channelUrl = `https://www.youtube.com/channel/${ch.channelId}/live`;
+    const embed = liveEmbedUrl(ch);
+    const channelUrl = liveTargetUrl(ch);
 
     return `
         <article class="live-card flex flex-col bg-white dark:bg-slate-800/50 rounded-2xl overflow-hidden border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_10px_35px_rgb(0,0,0,0.1)] dark:hover:shadow-[0_10px_35px_rgb(0,0,0,0.4)] transition-all duration-300 group hover:-translate-y-1" style="animation: fadeInUp 0.4s ease ${idx * 0.06}s both;">
