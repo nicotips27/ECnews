@@ -123,25 +123,100 @@ const appendLiveBadge = (stage, ch) => {
     stage.appendChild(badge);
 };
 
-const mountHlsPlayer = async (stage, ch, url) => {
+// ============================================================
+// CONTROL DE REPRODUCCIÓN (pausar / reanudar)
+// ============================================================
+const setStageControlIcon = (stage, playing) => {
+    const btn = stage.querySelector('.live-control-btn');
+    if (!btn) return;
+    btn.innerHTML = `<i class="ph ${playing ? 'ph-pause' : 'ph-play'}"></i>`;
+};
+
+const toggleStagePlayback = (stage) => {
+    const video = stage.querySelector('video');
+    if (video) {
+        if (video.paused) {
+            video.play().catch(() => { /* autoplay bloqueado */ });
+            setStageControlIcon(stage, true);
+            stage.dataset.playing = '1';
+            stage.dataset.userPaused = '0';
+            return true;
+        }
+        video.pause();
+        setStageControlIcon(stage, false);
+        stage.dataset.playing = '0';
+        stage.dataset.userPaused = '1';
+        return false;
+    }
+
+    const frame = stage.querySelector('iframe');
+    if (frame) {
+        const playing = frame.dataset.playing === '1';
+        try {
+            const url = new URL(frame.src);
+            url.searchParams.set('autoplay', playing ? '0' : '1');
+            frame.dataset.playing = playing ? '0' : '1';
+            frame.src = url.toString();
+        } catch (e) { /* URL no manipulable */ }
+        setStageControlIcon(stage, !playing);
+        stage.dataset.playing = playing ? '0' : '1';
+        stage.dataset.userPaused = playing ? '1' : '0';
+        return !playing;
+    }
+    return false;
+};
+
+const appendStageControl = (stage) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'live-control-btn absolute bottom-2 right-2 z-20 h-7 w-7 rounded-full bg-black/60 text-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-black/90 transition-colors';
+    btn.setAttribute('aria-label', 'Pausar o reanudar la transmisión');
+    btn.innerHTML = '<i class="ph ph-pause"></i>';
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleStagePlayback(stage);
+    });
+    stage.appendChild(btn);
+};
+
+const appendStageAudio = (stage) => {
+    const video = stage.querySelector('video');
+    if (!video) return;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'live-audio-btn absolute bottom-2 right-11 z-20 h-7 w-7 rounded-full bg-black/60 text-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-black/90 transition-colors';
+    btn.setAttribute('aria-label', 'Activar o silenciar el sonido');
+    btn.innerHTML = `<i class="ph ${video.muted ? 'ph-speaker-slash' : 'ph-speaker-high'}"></i>`;
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        video.muted = !video.muted;
+        btn.innerHTML = `<i class="ph ${video.muted ? 'ph-speaker-slash' : 'ph-speaker-high'}"></i>`;
+    });
+    stage.appendChild(btn);
+};
+
+const mountHlsPlayer = async (stage, ch, url, opts = {}) => {
     stage.innerHTML = '';
     let hlsInstance = null;
 
     const video = document.createElement('video');
     video.className = 'absolute inset-0 w-full h-full bg-black';
-    video.controls = true;
+    video.controls = opts.controls !== false;
     video.playsInline = true;
     video.autoplay = true;
     video.muted = true;
     video.setAttribute('playsinline', '');
     stage.appendChild(video);
     appendLiveBadge(stage, ch);
+    appendStageControl(stage);
+    if (opts.controls === false) appendStageAudio(stage);
+    setStageControlIcon(stage, true);
 
     const onFatal = async () => {
         try { if (hlsInstance) hlsInstance.destroy(); } catch (e) { /* ignore */ }
         const repaired = await repairStreamUrl(ch);
         if (repaired && repaired !== url) {
-            mountHlsPlayer(stage, ch, repaired);
+            mountHlsPlayer(stage, ch, repaired, opts);
             return;
         }
         showStageError(stage, ch, 'La señal no está disponible en este momento');
@@ -160,7 +235,13 @@ const mountHlsPlayer = async (stage, ch, url) => {
         if (!Hls.isSupported()) {
             video.src = url;
         } else {
-            hlsInstance = new Hls({ maxBufferLength: 20, enableWorker: true });
+            hlsInstance = new Hls({
+                maxBufferLength: 20,
+                enableWorker: true,
+                startLevel: 0,
+                capLevelToPlayerSize: true,
+                abrEwmaDefaultEstimate: 500000
+            });
             hlsInstance.on(Hls.Events.ERROR, (_evt, data) => {
                 if (data && data.fatal) onFatal();
             });
@@ -185,12 +266,19 @@ const mountYouTubePlayer = (stage, ch) => {
                 class="absolute inset-0 w-full h-full bg-black"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowfullscreen frameborder="0"></iframe>`;
+    const frame = stage.querySelector('iframe');
+    if (frame) frame.dataset.playing = '1';
     appendLiveBadge(stage, ch);
+    appendStageControl(stage);
+    setStageControlIcon(stage, true);
 };
 
-const startPlayback = (stage, ch) => {
+const startPlayback = (stage, ch, opts = {}) => {
+    const poster = stage.querySelector('.live-poster');
+    if (poster) poster.remove();
+
     if (ch.hls) {
-        mountHlsPlayer(stage, ch, ch.hls);
+        mountHlsPlayer(stage, ch, ch.hls, opts);
     } else {
         mountYouTubePlayer(stage, ch);
     }

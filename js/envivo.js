@@ -77,7 +77,7 @@ const renderLiveTicker = () => {
 const renderLiveCard = (ch, idx) => `
     <article class="live-card flex flex-col bg-white dark:bg-slate-800/50 rounded-2xl overflow-hidden border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_10px_35px_rgb(0,0,0,0.1)] dark:hover:shadow-[0_10px_35px_rgb(0,0,0,0.4)] transition-all duration-300">
         <div class="live-stage relative aspect-video bg-black overflow-hidden cursor-pointer group/stage" data-index="${idx}" role="button" tabindex="0" aria-label="Reproducir ${ch.name} en directo">
-            <div class="absolute inset-0 flex flex-col items-center justify-center gap-2 text-white transition-opacity group-hover/stage:opacity-80">
+            <div class="live-poster absolute inset-0 flex flex-col items-center justify-center gap-2 text-white transition-opacity group-hover/stage:opacity-80">
                 <i class="ph ph-play-circle text-5xl text-red-500"></i>
                 <span class="text-sm font-medium">Reproducir en directo</span>
             </div>

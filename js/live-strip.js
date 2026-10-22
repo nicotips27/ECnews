@@ -1,16 +1,17 @@
 /* ============================================================
    ECNEWS · FRANJA EN VIVO (index.html)
-   Muestra tres transmisiones destacadas en la parte superior del
-   portal principal. Reutiliza el reproductor compartido
-   (js/live-player.js) con click-to-play.
+   Tres transmisiones destacadas arriba del portal principal.
+   Arranque automático y mudo (el navegador lo permite al estar
+   silenciado), con control de pausa y pausa automática cuando
+   la franja sale de pantalla. Reutiliza js/live-player.js.
    ============================================================ */
 
 const renderLiveStripCard = (ch) => `
     <div class="live-card flex flex-col bg-white dark:bg-slate-800/50 rounded-2xl overflow-hidden border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-[0_10px_35px_rgb(0,0,0,0.08)] dark:hover:shadow-[0_10px_35px_rgb(0,0,0,0.35)] transition-all duration-300 group hover:-translate-y-0.5">
-        <div class="live-stage relative aspect-video bg-black overflow-hidden cursor-pointer group/stage" data-index="${ch.__index}" role="button" tabindex="0" aria-label="Reproducir ${ch.name} en directo">
-            <div class="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-white transition-opacity group-hover/stage:opacity-80">
+        <div class="live-stage relative aspect-video bg-black overflow-hidden" data-index="${ch.__index}">
+            <div class="live-poster absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-white">
                 <i class="ph ph-play-circle text-4xl text-red-500"></i>
-                <span class="text-xs font-medium">Reproducir en directo</span>
+                <span class="text-xs font-medium">Conectando con el directo...</span>
             </div>
             <span class="live-badge absolute top-2 left-2 z-10 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-600/90 text-white text-[8px] font-bold uppercase tracking-widest shadow-lg backdrop-blur-sm">
                 <span class="live-dot"></span> En Vivo
@@ -46,18 +47,40 @@ const loadLiveStrip = () => {
 
     container.innerHTML = channels.map(renderLiveStripCard).join('');
 
-    container.querySelectorAll('.live-stage').forEach(stage => {
+    const stages = [...container.querySelectorAll('.live-stage')];
+
+    stages.forEach(stage => {
         const ch = channels[Number(stage.dataset.index)];
-        const activate = () => {
-            if (stage.dataset.playing === '1') return;
-            stage.dataset.playing = '1';
-            startPlayback(stage, ch);
-        };
-        stage.addEventListener('click', activate);
-        stage.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }
+
+        // Arranque automático y mudo (sin controles nativos: dos botones discretos)
+        stage.dataset.playing = '1';
+        startPlayback(stage, ch, { controls: false });
+
+        // Clic en la escena: pausa / reanuda
+        stage.addEventListener('click', () => {
+            toggleStagePlayback(stage);
         });
     });
+
+    // Pausa automática cuando la franja no se ve (ahorra ancho de banda)
+    if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const visible = entry.isIntersecting;
+                stages.forEach(stage => {
+                    const video = stage.querySelector('video');
+                    if (!video) return;
+                    if (visible && stage.dataset.userPaused !== '1') {
+                        video.play().catch(() => { /* ignorado */ });
+                        setStageControlIcon(stage, true);
+                    } else if (!visible) {
+                        video.pause();
+                    }
+                });
+            });
+        }, { threshold: 0.15 });
+        observer.observe(container);
+    }
 };
 
 document.addEventListener('DOMContentLoaded', loadLiveStrip);

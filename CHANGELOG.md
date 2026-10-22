@@ -5,15 +5,18 @@
 **Franja En Vivo en el portal principal**
 
 - El inicio (`index.html`) abre con una franja "En Vivo Ahora" con tres transmisiones destacadas: **DW Español**, **La Nación · LN+** y **Al Jazeera English**.
-- Cada tarjeta reproduce en el sitio con un clic (mismo motor HLS que `envivo.html`) y enlaza a YouTube como respaldo.
+- Las tres **arrancan automáticamente y mudas** (el navegador lo permite al estar silenciado), dando movimiento al inicio sinMolestar al visitante.
+- Botones discretos en cada miniatura: **activar sonido** y **pausar/reanudar**. Un clic en la miniatura también pausa.
+- Se pausan solas cuando la franja sale de pantalla y se reanudan al volver (ahorra ancho de banda).
 - Botón **"Ir"** que lleva a `envivo.html` con el resto de canales.
 
 **Reproducción sobre HLS directo**
 
 - Los embeds de YouTube (`live_stream?channel=`) daban error 153 / "video no disponible" y los IDs de video en vivo caducan con cada emisión.
 - Ahora cada canal usa su stream HLS (`.m3u8`) con CORS abierto, reproducido con **hls.js** (nativo en Safari).
+- Los reproductores arrancan en la calidad más baja y se ajustan al tamaño de la miniatura, para que la imagen aparezca rápido.
 - Si un stream falla, la página **se autorepara**: consulta el índice de iptv-org y reintenta con la URL vigente del canal.
-- El reproductor se monta al hacer clic, así no se abren 15 conexiones simultáneas.
+- El reproductor se monta al hacer clic en `envivo.html`, así no se abren 15 conexiones simultáneas.
 
 ## 1.1.0 (2026-10-21)
 
