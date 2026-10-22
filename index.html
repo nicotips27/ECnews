@@ -315,6 +315,30 @@
     <!-- Contenido Principal -->
     <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 w-full">
 
+        <!-- FRANJA EN VIVO: 3 transmisiones destacadas -->
+        <section id="en-vivo-strip" class="mb-10 sm:mb-14 bg-white dark:bg-slate-800/40 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 p-5 sm:p-7 shadow-sm scroll-mt-28">
+            <div class="flex items-center justify-between gap-3 mb-5 sm:mb-6">
+                <div class="flex items-center space-x-3">
+                    <div class="h-9 w-9 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400">
+                        <i class="ph-fill ph-record text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-sm sm:text-base">En Vivo Ahora</h3>
+                        <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Transmisiones en directo · (actualiza en tiempo real)</p>
+                    </div>
+                </div>
+                <a href="envivo.html" class="shrink-0 inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white text-[10px] sm:text-[11px] font-bold uppercase tracking-wider px-3 sm:px-4 py-2 rounded-full shadow-sm transition-all duration-300 hover:shadow-md">
+                    Ir <i class="ph ph-arrow-right"></i>
+                </a>
+            </div>
+            <div id="live-strip-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+                <div class="col-span-full py-8 text-center text-slate-400 dark:text-slate-500 text-sm font-medium">
+                    <i class="ph ph-broadcast text-2xl mb-2 block"></i>
+                    <span>Cargando transmisiones en vivo...</span>
+                </div>
+            </div>
+        </section>
+
         <!-- Cabecera principal corporativa -->
         <div class="text-center mb-10 sm:mb-16">
             <span class="text-blue-600 dark:text-blue-500 font-bold tracking-widest text-xs uppercase mb-2 sm:mb-3 block">ECNEWS Portal</span>
@@ -635,6 +659,8 @@
 
     <!-- Scripts: datos -> lógica principal -> feeds -->
     <script src="js/data.js"></script>
+    <script src="js/live-player.js"></script>
+    <script src="js/live-strip.js"></script>
     <script src="js/main.js"></script>
     <script src="js/feeds.js"></script>
 </body>

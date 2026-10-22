@@ -41,6 +41,8 @@ ECNEWS es un sitio estático servido por GitHub Pages. No hay servidor ni build 
 | `js/main.js` | Construye del directorio (`buildMediaGrids` → `buildMediaCard`), dashboard y blindspot (`updateDistribution`, `updateBlindspot`), tema oscuro, panel de ajustes, menú móvil, y el pipeline del filtro (`applyBiasFilter`, `refreshGridCounts`) | Tarjetas `.directory-card`, barras, contadores, blindspot |
 | `js/feeds.js` | Rutinas RSS con caché (`fetchRSS`), ticker (`loadTicker`), hero (`loadFeatured`), grids (`loadGrid` → `renderCard`), espectro (`loadEspectro`, `renderColumn`) y transparencia (`renderOwnership`). Orquestado por `initFeeds()` | Ticker, hero, `.feed-card`, columnas de espectro, propiedad |
 | `envivo.html` | Subpágina de transmisiones en vivo. Header compacto, ticker de canales y dos grids (`#grid-envivo-es`, `#grid-envivo-en`) | Tarjetas `.live-card` con iframe de YouTube Live |
+| `js/live-player.js` | Reproductor compartido: carga de hls.js, montaje del `<video>`, autoreparación con iptv-org, respaldo en YouTube | Reproductores `.live-stage` |
+| `js/live-strip.js` | Franja "En Vivo Ahora" del portal principal. Renderiza los 3 canales de `LIVE_STRIP` con el reproductor compartido | Tarjetas `.live-card` en `#live-strip-grid` |
 | `js/envivo.js` | Render de `LIVE_CONFIG` (`renderLiveCard`, `loadLiveGrid`), ticker (`renderLiveTicker`), tema oscuro y menú móvil propios | `.live-card`, ticker `#live-ticker` |
 
 El estado global `currentBiasFilter` se comparte entre ambos ficheros (ambos se declaran en el ámbito global del script).
@@ -96,6 +98,12 @@ Hallazgos clave:
 
 El tema usa la misma clave `color-theme` de `index.html`, así que la preferencia
 se comparte entre páginas.
+
+### Franja En Vivo del portal (`index.html`)
+
+`js/live-strip.js` resuelve los nombres de `LIVE_STRIP` contra `LIVE_CONFIG` y
+pinta tres tarjetas en `#live-strip-grid`, usando el mismo reproductor de
+`js/live-player.js`. El botón "Ir" lleva a `envivo.html`.
 
 ## Caché y almacenamiento
 

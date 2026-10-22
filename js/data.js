@@ -262,3 +262,11 @@ const LIVE_CONFIG = {
         { name: 'teleSUR English',     hls: 'https://mblenmain01.telesur.ultrabase.net/mblivev3/hd/playlist.m3u8',                channel: 'Telesur.ve',       youtube: 'UCmuTmpLY35O3csvhyA6vrkg', accent: 'indigo', bias: 'left',   country: 'Venezuela' },
     ],
 };
+
+// Canales destacados en la franja "En Vivo" del portal principal.
+// El nombre debe coincidir con una entrada de LIVE_CONFIG.
+const LIVE_STRIP = [
+    { name: 'DW Español' },
+    { name: 'La Nación · LN+' },
+    { name: 'Al Jazeera English' },
+];

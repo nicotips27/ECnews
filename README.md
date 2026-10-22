@@ -13,7 +13,7 @@ Publicado en GitHub Pages: `https://nicotips27.github.io/ECnews/`
 - **Feed visual en vivo** con grids multi-fuente equilibrados por sesgo: Español, English, Tecnología ES/EN, Ciencia y Economía.
 - **Ticker** de última hora y **hero** con la noticia destacada del momento.
 - **A Través del Espectro**: la misma cobertura vista desde Izquierda, Centro y Derecha.
-- **En Vivo**: subpágina (`envivo.html`) con transmisiones 24 horas de medios internacionales en **español** e **inglés**, embebidas desde YouTube Live.
+- **En Vivo**: subpágina (`envivo.html`) con transmisiones 24 horas de medios internacionales en **español** e **inglés**, y franja destacada arriba del portal principal.
 - **Transparencia**: panel de propiedad de los medios agrupados por propietario.
 - **Panel de ajustes** (offcanvas): modo oscuro y filtro de sesgo persistente.
 - **Menú desplegable de apps** de Estalingrado Corp (Buscador, Download, Market, SendPro, Monitor Big Data).
@@ -31,6 +31,7 @@ Publicado en GitHub Pages: `https://nicotips27.github.io/ECnews/`
 | A Través del Espectro | Cobertura comparada por sesgo |
 | Transparencia | Propietarios de los medios |
 | En Vivo | Señales en directo (ES/EN) embebidas desde YouTube Live |
+| En Vivo Ahora | Franja superior del portal con 3 transmisiones destacadas |
 | Ajustes | Modo oscuro + filtro por sesgo |
 
 ## Filtro por sesgo
@@ -53,7 +54,7 @@ El hero, el ticker y "A Través del Espectro" no se filtran, porque representan 
 
 ```
 ECnews/
-├── index.html            # HTML (estructura + metadatos SEO)
+├── index.html            # HTML (estructura + metadatos SEO) + franja En Vivo
 ├── envivo.html           # Subpágina de transmisiones en vivo (ES/EN)
 ├── styles.css            # CSS compilado de Tailwind (commiteado para GitHub Pages)
 ├── css/custom.css        # CSS manual (ticker, badges, barras, animaciones, en vivo)
@@ -61,7 +62,9 @@ ECnews/
 │   ├── data.js           # Fuente única de datos: 50 medios + config RSS + LIVE_CONFIG
 │   ├── main.js           # Directorio, tema, settings, filtros, blindspot
 │   ├── feeds.js          # Ticker, hero, grids RSS, espectro, transparencia
-│   └── envivo.js         # Render de transmisiones en vivo, tema y menú
+│   ├── live-player.js    # Reproductor HLS compartido (hls.js + autoreparación)
+│   ├── live-strip.js     # Franja "En Vivo Ahora" del portal principal
+│   └── envivo.js         # Grid completo de canales, tema y menú de envivo.html
 ├── assets/favicon.png    # Favicon local
 ├── src/tailwind.css      # Punto de entrada del build de Tailwind
 ├── tailwind.config.js    # darkMode: 'class'

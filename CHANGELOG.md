@@ -1,5 +1,20 @@
 # Registro de cambios
 
+## 1.2.0 (2026-10-22)
+
+**Franja En Vivo en el portal principal**
+
+- El inicio (`index.html`) abre con una franja "En Vivo Ahora" con tres transmisiones destacadas: **DW Español**, **La Nación · LN+** y **Al Jazeera English**.
+- Cada tarjeta reproduce en el sitio con un clic (mismo motor HLS que `envivo.html`) y enlaza a YouTube como respaldo.
+- Botón **"Ir"** que lleva a `envivo.html` con el resto de canales.
+
+**Reproducción sobre HLS directo**
+
+- Los embeds de YouTube (`live_stream?channel=`) daban error 153 / "video no disponible" y los IDs de video en vivo caducan con cada emisión.
+- Ahora cada canal usa su stream HLS (`.m3u8`) con CORS abierto, reproducido con **hls.js** (nativo en Safari).
+- Si un stream falla, la página **se autorepara**: consulta el índice de iptv-org y reintenta con la URL vigente del canal.
+- El reproductor se monta al hacer clic, así no se abren 15 conexiones simultáneas.
+
 ## 1.1.0 (2026-10-21)
 
 **En Vivo: subpágina de transmisiones**
