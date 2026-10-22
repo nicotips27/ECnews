@@ -245,7 +245,7 @@ const LIVE_CONFIG = {
         { name: 'TN · Todo Noticias',  videoId: 'cb12KmMMDJA', accent: 'blue',   bias: 'center', country: 'Argentina' },
         { name: 'Canal 26 · En Vivo', videoId: 'C_RnFD6xiX8', accent: 'blue',   bias: 'center', country: 'México' },
         { name: 'DW Español',          channelId: 'UCT4Jg8h03dD0iN3Pb5L0PMA', accent: 'blue',   bias: 'center', country: ' Alemania' },
-        { name: 'Agencia EFE',         channelId: 'UCvJS-YNyaWyOucx8bGrHVvw', accent: 'blue',   bias: 'center', country: 'España' },
+        { name: 'La Nación · LN+',   videoId: 'FEWZjXJ7M0c', accent: 'blue',   bias: 'center', country: 'Argentina' },
         { name: 'FRANCE 24 Español',   channelId: 'UCUdOoVWuWmgo1wByzcsyKDQ', accent: 'blue',   bias: 'center', country: 'Francia' },
         { name: 'teleSUR En Vivo',     channelId: 'UCZSdNK_ZmMQcLTz-obKr-Dw', accent: 'blue',   bias: 'left',   country: 'Venezuela' },
     ],
