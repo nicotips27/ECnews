@@ -243,7 +243,7 @@ const RSS_CONFIG = {
 const LIVE_CONFIG = {
     es: [
         { name: 'TN · Todo Noticias',  videoId: 'cb12KmMMDJA', accent: 'blue',   bias: 'center', country: 'Argentina' },
-        { name: 'CNN en Español',      channelId: 'UC_lEiu6917IJz03TnntWUaQ', accent: 'blue',   bias: 'center', country: 'Global' },
+        { name: 'Canal 26 · En Vivo', videoId: 'C_RnFD6xiX8', accent: 'blue',   bias: 'center', country: 'México' },
         { name: 'DW Español',          channelId: 'UCT4Jg8h03dD0iN3Pb5L0PMA', accent: 'blue',   bias: 'center', country: ' Alemania' },
         { name: 'Agencia EFE',         channelId: 'UCvJS-YNyaWyOucx8bGrHVvw', accent: 'blue',   bias: 'center', country: 'España' },
         { name: 'FRANCE 24 Español',   channelId: 'UCUdOoVWuWmgo1wByzcsyKDQ', accent: 'blue',   bias: 'center', country: 'Francia' },
