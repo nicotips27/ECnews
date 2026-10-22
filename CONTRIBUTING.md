@@ -67,16 +67,34 @@ Guarda siempre los tres valores de sesgo representados (`left`, `center`, `right
 Edita `js/data.js` → `LIVE_CONFIG` (dentro de `es` o `en`). Cada entrada:
 
 ```js
-{ name: 'BBC News', channelId: 'UC16niRr50-MSBwiO3YDb3RA', accent: 'indigo', bias: 'center', country: 'Reino Unido' },
+{ name: 'RTVE 24 Horas',
+  hls: 'https://ztnr.rtve.es/ztnr/1694255.m3u8',
+  channel: '24Horas.es',
+  youtube: 'UC7QZIf0dta-XPXsp9Hv4dTw',
+  accent: 'blue', bias: 'center', country: 'España' },
 ```
 
-- `channelId`: ID público de YouTube (la cadena `UC…`), no el `@handle`.
-- `accent`: `blue` para la sección en español, `indigo` para la de inglés.
-- `bias`: valor del catálogo (`left`, `center`, `right`); alimenta el badge de la tarjeta.
+- `hls`: URL `.m3u8` del stream. Debe servir con `Access-Control-Allow-Origin`
+  (compruébalo con `curl -I -H "Origin: https://nicotips27.github.io" <url>`).
+  Sin HLS, pon `null` y se usará el embed de YouTube.
+- `channel`: ID del canal en iptv-org (el que aparece en
+  `https://iptv-org.github.io/api/channels.json`). Es lo que permite que la
+  página se autorepare si la URL del stream deja de servir.
+- `youtube`: ID de canal (`UC…`) o de video (11 caracteres). Sirve de respaldo y
+  alimenta el enlace "Ver en YouTube".
+- `accent`: `blue` para español, `indigo` para inglés.
+- `bias`: `left`, `center` o `right`; alimenta el badge de la tarjeta.
 
-El reproductor usa `youtube.com/embed/live_stream?channel=<channelId>`. Si un
-canal no está emitiendo en ese momento, el iframe muestra aviso y el botón
-"Abrir en YouTube" sigue disponible. No olvides recompilar el CSS (`npm run build:css`) tras tocar HTML/JS.
+Para encontrar el stream de un canal:
+
+```bash
+# lista los streams disponibles de un canal de iptv-org
+curl -s https://iptv-org.github.io/api/streams.json \
+  | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{
+      JSON.parse(d).filter(s=>s.channel==='24Horas.es').forEach(s=>console.log(s.title,s.url))})"
+```
+
+No olvides recompilar el CSS (`npm run build:css`) tras tocar HTML/JS.
 
 ## Cambiar el filtro por sesgo
 

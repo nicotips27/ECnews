@@ -104,21 +104,32 @@ Espectro: Izquierda → The Guardian · Centro → BBC, Xataka · Derecha → El
 
 ## Transmisiones en Vivo (js/data.js → LIVE_CONFIG)
 
-La subpágina `envivo.html` embebe el stream en vivo actual de cada canal con
-`https://www.youtube.com/embed/live_stream?channel=<channelId>`. Los canales se
-agrupan en `LIVE_CONFIG.es` y `LIVE_CONFIG.en`.
+La subpágina `envivo.html` reproduce las señales en directo con **streams HLS directos**
+(`.m3u8`) cargados con **hls.js**. Se reproduce con un clic: primero se muestra el
+póster y el reproductor se monta al pulsar, para no abrir 15 conexiones a la vez.
+
+Cada canal de `LIVE_CONFIG` declara:
+
+| Campo | Descripción |
+| --- | --- |
+| `hls` | URL del stream `.m3u8` (CORS abierto). Es la fuente principal. |
+| `channel` | ID del canal en iptv-org. Permite **autoreparar** el stream si la URL muere. |
+| `youtube` | Canal o video de YouTube como respaldo y enlace "Ver en YouTube". |
 
 | Idioma | Canales |
 | --- | --- |
-| Español | RTVE Noticias 24H · CNN en Español · DW Español · Agencia EFE · FRANCE 24 Español · teleSUR En Vivo |
-| English | BBC News · Sky News · Al Jazeera English · France 24 English · DW News · Bloomberg Television · CNN · teleSUR English |
+| Español | RTVE 24 Horas · DW Español · Canal 26 · France 24 Español · teleSUR · TN Todo Noticias · La Nación LN+ |
+| English | BBC News · Sky News · CNN International · DW News · Al Jazeera English · France 24 English · Bloomberg Television · teleSUR English |
 
-Cada tarjeta muestra el reproductor 16:9, un badge de **En Vivo**, el sesgo
-político del medio y un botón "Abrir en YouTube" como respaldo (útil si un canal
-no está emitiendo, p. ej. CNN, que solo transmite durante eventos).
+**Autoreparación:** si un stream HLS falla, la página consulta el índice de
+`iptv-org` (`https://iptv-org.github.io/api/streams.json`, cacheado 6 h en
+`sessionStorage`) y reintenta con la URL vigente del canal. Si tampoco hay
+respuesta, la tarjeta muestra un aviso con el enlace a YouTube.
 
-> Los `channelId` son los IDs públicos de YouTube. Pueden cambiar si el canal se
-> recrea; si un reproductor queda vacío, actualiza el ID en `LIVE_CONFIG`.
+> Por qué no YouTube: el endpoint RSS de YouTube (`/feeds/videos.xml`) devolvió 404
+> para todos los canales, y el embed `live_stream?channel=` falla con error 153 en
+> según qué orígenes. Los HLS de iptv-org tienen `Access-Control-Allow-Origin` y no
+> caducan al terminar cada emisión.
 
 ## Guardar y desarrollar
 

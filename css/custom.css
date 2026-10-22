@@ -77,4 +77,8 @@
     background: #ffffff;
     animation: livePulse 1.4s ease-in-out infinite;
 }
-.live-card iframe { background: #000; }
+
+/* Reproductor HLS embebido en la tarjeta de canal */
+.live-stage video,
+.live-stage iframe { background: #000; }
+.live-stage video::-webkit-media-controls-enclosure { border-radius: 0; }

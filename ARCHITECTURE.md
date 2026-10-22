@@ -83,17 +83,26 @@ Hallazgos clave:
 ## Página En Vivo (`envivo.html`)
 
 1. `DOMContentLoaded` en `js/envivo.js` inicializa tema, menú móvil y ticker.
-2. `loadLiveGrid` pinta las tarjetas de `LIVE_CONFIG.es` y `LIVE_CONFIG.en`.
-3. Cada tarjeta embebe `https://www.youtube.com/embed/live_stream?channel=<channelId>&autoplay=1&mute=1&playsinline=1`. YouTube resuelve el stream en vivo actual; si el canal no está emitiendo, el iframe muestra aviso y el botón "Abrir en YouTube" redirige al canal.
-4. El tema usa la misma clave `color-theme` de `index.html`, así que la preferencia se comparte entre páginas.
+2. `loadLiveGrid` pinta las tarjetas de `LIVE_CONFIG.es` y `LIVE_CONFIG.en`. Cada
+   tarjeta arranca con un póster: el reproductor se monta al hacer clic
+   (click-to-play), para no abrir 15 conexiones simultáneas.
+3. Si el canal tiene `hls`, se carga `hls.js` bajo demanda y se reproduce el
+   `.m3u8`. Safari usa HLS nativo (`canPlayType`).
+4. Si el stream falla, `repairStreamUrl` consulta el índice de iptv-org
+   (`api/streams.json`, cacheado 6 h en `sessionStorage`, guardando solo las URLs
+   de nuestros canales) y reintenta con la URL vigente.
+5. Si no hay HLS o la reparación falla, se monta el embed de YouTube. El enlace
+   "Ver en YouTube" está siempre visible.
 
-No hay caché ni estado adicional: la página es completamente estática.
+El tema usa la misma clave `color-theme` de `index.html`, así que la preferencia
+se comparte entre páginas.
 
 ## Caché y almacenamiento
 
 | Capa | Clave | Caducidad | Propósito |
 | --- | --- | --- | --- |
 | Feeds RSS | `ecnews-rss:<url>` | 10 min | Evitar límites de api.rss2json.com y acelerar recargas |
+| Índice iptv-org | `ecnews-iptv-streams` | 6 h | URLs de stream vigentes para autoreparar los canales en vivo |
 | Filtro | `ecnews-bias-filter` | sesión | Persistir el filtro activo entre recargas |
 | Tema | `color-theme` | indefinida | Persistir modo claro/oscuro |
 
