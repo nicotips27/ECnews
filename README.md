@@ -60,6 +60,7 @@ ECnews/
 ├── css/custom.css        # CSS manual (ticker, badges, barras, animaciones, en vivo)
 ├── js/
 │   ├── data.js           # Fuente única de datos: 50 medios + config RSS + LIVE_CONFIG
+│   ├── rss.js            # Capa de feeds: caché, cadena de fuentes y parseo XML
 │   ├── main.js           # Directorio, tema, settings, filtros, blindspot
 │   ├── feeds.js          # Ticker, hero, grids RSS, espectro, transparencia
 │   ├── live-player.js    # Reproductor HLS compartido (hls.js + autoreparación)
@@ -90,18 +91,31 @@ Toda la información de los medios vive en `mediaSources`. Un solo cambio actual
 
 `biasGroup()` agrupa el sesgo en 3 bandas para las barras: `center-left` → `left`, `center-right` → `right`, resto → `center`.
 
-## Feeds RSS (js/data.js → RSS_CONFIG)
+## Feeds RSS (js/rss.js → RSS_CONFIG)
 
-Los feeds se cargan vía `api.rss2json.com` con caché de 10 minutos en `sessionStorage` y manejo de errores amigable. Cada URL lleva su sesgo (`bias`) para poder filtrar.
+Los feeds se resuelven con una **cadena de fuentes** (`js/rss.js`): caché de 10 min en
+`sessionStorage` → fetch directo (solo en feeds con `Access-Control-Allow-Origin`) →
+proxy CORS (`api.cors.lol`) → `api.rss2json.com`. Así el portal sigue funcionando
+aunque un intermediario se caiga.
+
+El XML se parsea en el navegador con `DOMParser` y se normaliza al mismo formato que
+devolvía rss2json, de modo que `js/feeds.js` no cambia.
 
 | Grid | Fuentes (sesgo) |
 | --- | --- |
 | Español | El País (izq) · 20Minutos (centro) · El Mundo / Clarín / ABC (der) |
 | English | The Guardian (izq) · BBC / Sky News (centro) · Fox News (der) |
-| Tecnología ES | 20Minutos Tecnología (centro) · Xataka (centro) |
+| Tecnología ES | 20Minutos Tecnología (centro) · Xataka (centro) · CNBC Español (centro) |
 | Technology EN | TechCrunch (centro) · Wired (centro) |
-| Ciencia y Cultura | ScienceDaily (centro) · New Scientist (centro) |
-| Economía y Finanzas | Bloomberg (centro) · NYT Economy (centroizq) · Forbes (der) |
+| Ciencia y Cultura | NYT Science (centro) · ScienceDaily (centro) · New Scientist (centro) |
+| Economía y Finanzas | Bloomberg (centro) · NYT Economy (centroizq) · CNBC (der) · MarketWatch (centro) |
+
+Ticker: El País + Clarín + ABC (se ordenan por fecha, lo más reciente primero).
+Hero: NYT World + BBC World (prioriza el artículo con imagen).
+
+> Cada grid incluye al menos una fuente con CORS abierto, para que nunca se quede
+> vacío si el proxy principal está caído. Los feeds con CORS verificado están en la
+> lista `CORS_FEEDS` de `js/rss.js`.
 
 Espectro: Izquierda → The Guardian · Centro → BBC, Xataka · Derecha → El Mundo, ABC.
 

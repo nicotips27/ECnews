@@ -62,6 +62,28 @@ Edita `js/data.js` → `RSS_CONFIG`. Estructura de un grid:
 
 Guarda siempre los tres valores de sesgo representados (`left`, `center`, `right`) en las secciones políticas. Purezas técnicas van con `center`.
 
+### Cadena de resolución
+
+`js/rss.js` intenta, en orden: caché → fetch directo (solo feeds con CORS abierto) →
+proxy CORS (`api.cors.lol`) → rss2json. Para que un feed nuevo funcione **sin proxy**,
+añádelo a `CORS_FEEDS` en `js/rss.js`, pero primero verifica que manda la cabecera:
+
+```bash
+curl -sI -H "Origin: https://nicotips27.github.io" <url> | grep -i access-control-allow-origin
+```
+
+Regla del portal: **cada grid debe tener al menos un feed con CORS abierto**, para que
+no se quede vacío cuando el proxy está caído. Para saber qué feeds de origen están
+vivos y con CORS:
+
+```bash
+curl -sI -H "Origin: https://nicotips27.github.io" <url> | head -1
+```
+
+> Nota: `https://www.xataka.com/feed.xml` y `https://www.forbes.com/feed/rss` están
+> muertos (404). Las alternativas en uso son `https://www.xataka.com/index.xml` y
+> `https://www.cnbc.com/id/100003114/device/rss/rss.html`.
+
 ## Añadir un canal en vivo
 
 Edita `js/data.js` → `LIVE_CONFIG` (dentro de `es` o `en`). Cada entrada:

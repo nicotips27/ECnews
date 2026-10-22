@@ -188,10 +188,21 @@ const CARD_META = {
 
 // ============================================================
 // CONFIGURACIÓN DE FEEDS RSS
+// Los feeds se resuelven con la cadena de js/rss.js (directo si el
+// feed tiene CORS abierto, si no proxy CORS o rss2json).
+// Cada grid incluye al menos una fuente con CORS para que nunca
+// se quede vacío si rss2json está caído.
 // ============================================================
 const RSS_CONFIG = {
-    ticker: 'https://www.clarin.com/rss/lo-ultimo/',
-    hero: 'https://feeds.bbci.co.uk/news/world/rss.xml',
+    ticker: [
+        'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada',
+        'https://www.clarin.com/rss/lo-ultimo/',
+        'https://www.abc.es/rss/feeds/abc_ultima.xml',
+    ],
+    hero: [
+        'https://rss.nytimes.com/services/xml/rss/nyt/World.xml',
+        'https://feeds.bbci.co.uk/news/world/rss.xml',
+    ],
     grids: [
         { container: 'grid-noticias-es', accent: 'blue', items: 8, max: 20, label: 'artículos', urls: [
             { url: 'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada', bias: 'left' },
@@ -208,25 +219,28 @@ const RSS_CONFIG = {
         ]},
         { container: 'grid-noticias-es-tech', accent: 'cyan', items: 8, max: 15, label: 'artículos', urls: [
             { url: 'https://www.20minutos.es/rss/tecnologia/', bias: 'center' },
-            { url: 'https://www.xataka.com/feed.xml', bias: 'center' },
+            { url: 'https://www.xataka.com/index.xml', bias: 'center' },
+            { url: 'https://www.cnbc.com/id/19832390/device/rss/rss.html', bias: 'center' },
         ]},
         { container: 'grid-noticias-en-tech', accent: 'violet', items: 8, max: 15, label: 'articles', urls: [
             { url: 'https://techcrunch.com/feed/', bias: 'center' },
             { url: 'https://www.wired.com/feed/rss', bias: 'center' },
         ]},
         { container: 'grid-noticias-ciencia', accent: 'emerald', items: 6, max: 12, label: 'artículos', urls: [
+            { url: 'https://rss.nytimes.com/services/xml/rss/nyt/Science.xml', bias: 'center' },
             { url: 'https://www.sciencedaily.com/rss/all.xml', bias: 'center' },
             { url: 'https://www.newscientist.com/feed/home', bias: 'center' },
         ]},
         { container: 'grid-noticias-economia', accent: 'amber', items: 6, max: 12, label: 'artículos', urls: [
             { url: 'https://feeds.bloomberg.com/markets/news.rss', bias: 'center' },
             { url: 'https://rss.nytimes.com/services/xml/rss/nyt/Economy.xml', bias: 'center-left' },
-            { url: 'https://www.forbes.com/feed/rss', bias: 'right' },
+            { url: 'https://www.cnbc.com/id/100003114/device/rss/rss.html', bias: 'right' },
+            { url: 'https://feeds.marketwatch.com/marketwatch/topstories/', bias: 'center' },
         ]},
     ],
     espectro: {
-        izquierda: ['https://www.theguardian.com/world/rss'],
-        centro:    ['https://feeds.bbci.co.uk/news/world/rss.xml', 'https://www.xataka.com/feed.xml'],
+        izquierda: ['https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada', 'https://www.theguardian.com/world/rss'],
+        centro:    ['https://feeds.bbci.co.uk/news/world/rss.xml', 'https://www.xataka.com/index.xml'],
         derecha:   ['https://e00-elmundo.uecdn.es/elmundo/rss/portada.xml', 'https://www.abc.es/rss/feeds/abc_ultima.xml'],
     },
 };

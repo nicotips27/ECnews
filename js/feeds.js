@@ -57,26 +57,7 @@ const placeholderSVG = (source, accent) => {
 
 // FETCH RSS con caché corta en sessionStorage (protección ante
 // límites de api.rss2json.com y mejor tiempo de carga en recargas)
-const CACHE_TTL = 10 * 60 * 1000;
-
-const fetchRSS = async (url) => {
-    const cacheKey = 'ecnews-rss:' + url;
-    try {
-        const cached = sessionStorage.getItem(cacheKey);
-        if (cached) {
-            const parsed = JSON.parse(cached);
-            if (Date.now() - parsed.ts < CACHE_TTL) return parsed.data;
-        }
-    } catch (e) { /* almacenamiento no disponible */ }
-
-    const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(url));
-    const data = await res.json();
-    try {
-        sessionStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data }));
-    } catch (e) { /* almacenamiento no disponible */ }
-    return data;
-};
-
+// La resolución con cadena de fuentes vive en js/rss.js
 const setCount = (id, text) => {
     const el = document.getElementById(id);
     if (el) el.textContent = text;
@@ -95,9 +76,15 @@ const loadTicker = async () => {
     const container = document.getElementById('news-ticker');
     if (!container) return;
     try {
-        const data = await fetchRSS(RSS_CONFIG.ticker);
-        if (data.status === 'ok' && data.items) {
-            container.innerHTML = data.items.slice(0, 12).map(item => `
+        const data = await fetchRSSMany(RSS_CONFIG.ticker);
+        if (data.status === 'ok' && data.items && data.items.length) {
+            // Lo más reciente primero
+            const sorted = data.items.slice().sort((a, b) => {
+                const ta = a.pubDate ? new Date(a.pubDate).getTime() : 0;
+                const tb = b.pubDate ? new Date(b.pubDate).getTime() : 0;
+                return tb - ta;
+            });
+            container.innerHTML = sorted.slice(0, 14).map(item => `
                 <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-4 sm:px-6 hover:text-white transition-colors duration-200">
                     <span class="text-blue-500 mr-2 text-lg leading-none">•</span>
                     <span class="tracking-wide">${item.title}</span>
@@ -115,9 +102,17 @@ const loadFeatured = async () => {
     const link = document.getElementById('featured-link');
     if (!hero || !link) return;
     try {
-        const data = await fetchRSS(RSS_CONFIG.hero);
+        const data = await fetchRSSMany(RSS_CONFIG.hero);
         if (data.status !== 'ok' || !data.items.length) return;
-        const item = data.items[0];
+
+        // Lo más reciente primero y, a igualdad, el primero con imagen
+        const sorted = data.items.slice().sort((a, b) => {
+            const ta = a.pubDate ? new Date(a.pubDate).getTime() : 0;
+            const tb = b.pubDate ? new Date(b.pubDate).getTime() : 0;
+            return tb - ta;
+        });
+        const item = sorted.find(i => extractImage(i)) || sorted[0];
+
         let heroImg = extractImage(item);
         if (!heroImg) heroImg = 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&q=80&w=1200';
         const cleanDesc = stripTags(item.description, 150);
@@ -129,7 +124,7 @@ const loadFeatured = async () => {
         if (loading) loading.remove();
         link.classList.remove('opacity-0');
         link.href = item.link;
-        document.getElementById('featured-badge').textContent = data.feed.title || 'Última Hora';
+        document.getElementById('featured-badge').textContent = item.source || 'Última Hora';
         document.getElementById('featured-title').textContent = item.title;
         document.getElementById('featured-desc').textContent = cleanDesc;
     } catch (e) { /* silencioso */ }

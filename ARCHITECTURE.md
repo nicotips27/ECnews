@@ -38,6 +38,7 @@ ECNEWS es un sitio estático servido por GitHub Pages. No hay servidor ni build 
 | Fichero | Responsabilidad | Salidas al DOM |
 | --- | --- | --- |
 | `js/data.js` | Fuente única de datos. `mediaSources` (directorio) + `RSS_CONFIG` (feeds) + `LIVE_CONFIG` (transmisiones en vivo) + utilidades de sesgo (`biasGroup`, `biasLabelMap`, `factLabelMap`) + mapas de clases Tailwind (`ACCENT_CLASSES`, `SEGMENT_CLASSES`, `CARD_META`) | — |
+| `js/rss.js` | Capa de feeds: caché en sessionStorage, cadena de resolución (directo → proxy CORS → rss2json), parseo XML con `DOMParser` y normalización al formato de rss2json | — |
 | `js/main.js` | Construye del directorio (`buildMediaGrids` → `buildMediaCard`), dashboard y blindspot (`updateDistribution`, `updateBlindspot`), tema oscuro, panel de ajustes, menú móvil, y el pipeline del filtro (`applyBiasFilter`, `refreshGridCounts`) | Tarjetas `.directory-card`, barras, contadores, blindspot |
 | `js/feeds.js` | Rutinas RSS con caché (`fetchRSS`), ticker (`loadTicker`), hero (`loadFeatured`), grids (`loadGrid` → `renderCard`), espectro (`loadEspectro`, `renderColumn`) y transparencia (`renderOwnership`). Orquestado por `initFeeds()` | Ticker, hero, `.feed-card`, columnas de espectro, propiedad |
 | `envivo.html` | Subpágina de transmisiones en vivo. Header compacto, ticker de canales y dos grids (`#grid-envivo-es`, `#grid-envivo-en`) | Tarjetas `.live-card` con iframe de YouTube Live |
@@ -50,10 +51,21 @@ El estado global `currentBiasFilter` se comparte entre ambos ficheros (ambos se 
 ## Flujo de datos RSS
 
 1. `initFeeds()` dispara en paralelo ticker, hero, cada grid de `RSS_CONFIG.grids`, espectro y transparencia.
-2. `fetchRSS(url)` consulta `api.rss2json.com/v1/api.json?rss_url=...`. La respuesta se cachea 10 minutos en `sessionStorage` bajo la clave `ecnews-rss:<url>` para proteger límites de la API y acelerar recargas.
-3. `loadGrid(cfg)` hace `Promise.all` sobre `cfg.urls`, y por cada URL guarda los ítems junto con `source` (título del feed) y `bias` (declarado en `RSS_CONFIG`).
-4. Los ítems se mezclan aleatoriamente, se toman los primeros `cfg.max` y se pintan con `renderCard(item, source, accent, idx, bias)`, que emite `data-bias` y la clase `feed-card`.
-5. Al terminar, `loadGrid` re-aplica el filtro activo con `applyBiasFilter(currentBiasFilter)` para que las tarjetas nuevas respeten el estado.
+2. `fetchRSS(url)` (en `js/rss.js`) resuelve el feed con esta cadena:
+   1. caché en `sessionStorage` (`ecnews-rss:<url>`, 10 min);
+   2. **fetch directo**, solo si la URL está en `CORS_FEEDS` (feeds verificados con `Access-Control-Allow-Origin`);
+   3. **proxy CORS** `api.cors.lol`;
+   4. **rss2json** `api.rss2json.com`.
+   El primer intento que devuelva items gana. El XML se parsea con `DOMParser` y se
+   normaliza a `{ status, feed: { title }, items: [...] }`, el mismo formato que
+   devolvía rss2json, así que `js/feeds.js` no depende del intermediario.
+3. `fetchRSSMany(urls)` fusiona varias fuentes (ticker y hero) y añade `source` a cada item.
+4. `loadGrid(cfg)` hace `Promise.all` sobre `cfg.urls`, y por cada URL guarda los ítems junto con `source` (título del feed) y `bias` (declarado en `RSS_CONFIG`).
+5. Los ítems se mezclan aleatoriamente, se toman los primeros `cfg.max` y se pintan con `renderCard(item, source, accent, idx, bias)`, que emite `data-bias` y la clase `feed-card`.
+6. Al terminar, `loadGrid` re-aplica el filtro activo con `applyBiasFilter(currentBiasFilter)` para que las tarjetas nuevas respeten el estado.
+
+> Cada grid incluye al menos una fuente con CORS abierto, de modo que nunca se
+> queda vacío si el proxy principal está caído.
 
 ## Pipeline del filtro por sesgo
 

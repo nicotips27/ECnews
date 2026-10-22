@@ -1,5 +1,16 @@
 # Registro de cambios
 
+## 1.3.0 (2026-10-22)
+
+**Feeds: el portal vuelve a tener noticias**
+
+- `api.rss2json.com` devolvía 403 y todos los grids mostraban "Error al conectar con las fuentes". Ahora la capa de feeds (`js/rss.js`) resuelve con una cadena: **caché → fetch directo → proxy CORS → rss2json**.
+- Se parsea el XML en el navegador con `DOMParser` y se normaliza al formato de rss2json, sin depender de ningún intermediario.
+- Cada grid incluye al menos una fuente con CORS abierto, para que nunca se quede vacío. Verificado: Español 152 · English 25 · Tecnología ES 30 · Technology EN 60 · Ciencia 28 · Economía 50.
+- Se reparan dos feeds muertos: Xataka (`feed.xml` → `index.xml`) y Forbes (→ CNBC). Se añaden NYT Science, CNBC, MarketWatch y CNBC Español.
+- El **ticker "Último Minuto"** ahora muestra noticias ordenadas por fecha (lo más reciente primero) y su etiqueta es **enlace a `envivo.html`**.
+- El hero combina NYT World + BBC World y prioriza el artículo con imagen.
+
 ## 1.2.0 (2026-10-22)
 
 **Franja En Vivo en el portal principal**
