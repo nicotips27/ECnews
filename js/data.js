@@ -262,7 +262,7 @@ const LIVE_CONFIG = {
         { name: 'Canal 26 · En Vivo', hls: 'https://stream-gtlc.telecentro.net.ar/hls/canal26hls/main.m3u8',                   channel: 'Canal26.ar',       youtube: 'C_RnFD6xiX8',           accent: 'blue',   bias: 'center', country: 'México' },
         { name: 'France 24 Español',  hls: 'https://live.france24.com/hls/live/2037220/F24_ES_HI_HLS/master_5000.m3u8',           channel: 'France24.fr',      youtube: 'UCUdOoVWuWmgo1wByzcsyKDQ', accent: 'blue',   bias: 'center', country: 'Francia' },
         { name: 'teleSUR En Vivo',     hls: 'https://mblesmain01.telesur.ultrabase.net/mbliveMain/hd/playlist.m3u8',            channel: 'Telesur.ve',       youtube: 'UCZSdNK_ZmMQcLTz-obKr-Dw', accent: 'blue',   bias: 'left',   country: 'Venezuela' },
-        { name: 'TN · Todo Noticias',  hls: 'http://158.172.155.130:8000/play/a0dp/index.m3u8',                              channel: 'TN.ar',            youtube: 'cb12KmMMDJA',          accent: 'blue',   bias: 'center', country: 'Argentina' },
+        { name: 'RTVE 24 Horas',      hls: 'https://ztnr.rtve.es/ztnr/1694255.m3u8',                                    channel: '24Horas.es',      youtube: 'UC7QZIf0dta-XPXsp9Hv4dTw', accent: 'blue',   bias: 'center', country: 'España' },
         { name: 'La Nación · LN+',    hls: null,                                                                               channel: 'LaNacionPlus.ar',  youtube: 'FEWZjXJ7M0c',          accent: 'blue',   bias: 'center', country: 'Argentina' },
     ],
     en: [
